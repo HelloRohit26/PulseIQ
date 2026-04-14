@@ -1,0 +1,43 @@
+name: Deploy PulseIQ to AWS
+
+# This tells the robot to wake up ONLY when you push code to the 'main' branch
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout the latest code from GitHub
+      uses: actions/checkout@v3
+
+    - name: 🔐 Create the invisible .env file using the Vault Secrets
+      run: |
+        echo "NEWS_API_KEY=${{ secrets.NEWS_API_KEY }}" >> .env
+        # If you added a HuggingFace token earlier, remove the '#' from the line below:
+        # echo "HUGGINGFACE_TOKEN=${{ secrets.HUGGINGFACE_TOKEN }}" >> .env
+
+    - name: 🚚 Securely copy all project files to the AWS Server
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.AWS_HOST }}
+        username: ${{ secrets.AWS_USERNAME }}
+        key: ${{ secrets.AWS_SSH_KEY }}
+        source: "."
+        target: "/home/ubuntu/PulseIQ"
+
+    - name: 🚀 Turn on the AI Factory (Docker Compose)
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.AWS_HOST }}
+        username: ${{ secrets.AWS_USERNAME }}
+        key: ${{ secrets.AWS_SSH_KEY }}
+        script: |
+          cd /home/ubuntu/PulseIQ
+          # Shut down the old version cleanly
+          sudo docker-compose down
+          # Build and launch the new version
+          sudo docker-compose up --build -d
