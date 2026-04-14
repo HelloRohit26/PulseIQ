@@ -66,13 +66,7 @@ services:
         condition: service_healthy
       consumer:
         condition: service_started
-    healthcheck:
-      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/', timeout=3)\" 2>/dev/null"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 60s  # ML model needs ~30-50s to load; don't count failures until then
-
+    
   # --- 6. THE STREAMLIT DASHBOARD ---
   dashboard:
     build: .
@@ -80,8 +74,7 @@ services:
     ports:
       - "8501:8501"
     depends_on:
-      api:
-        condition: service_healthy  # Only start AFTER API is actually serving
+      - api
 
 volumes:
   postgres_data:
