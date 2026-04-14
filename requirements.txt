@@ -9,7 +9,6 @@ langchain
 langchain-google-genai
 langchain-chroma
 langchain-huggingface
-langchain-classic
 sentence-transformers
 fastapi
 uvicorn
