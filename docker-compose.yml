@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # --- 1. THE MESSAGE BROKER ---
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka # Changed to 'kafka' for internal networking
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CREATE_TOPICS: "news_articles:1:1"
+    depends_on:
+      - zookeeper
+
+  # --- 2. THE DATABASE ---
+  postgres:
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: pulseiq_user
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: pulseiq_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pulseiq_user -d pulseiq_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # --- 3. THE ALWAYS-ON CONSUMER ---
+  consumer:
+    build: .
+    command: python consumer.py
+    env_file: .env
+    depends_on:
+      kafka:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+
+  # --- 4. THE AUTOMATED PRODUCER ---
+  producer:
+    build: .
+    command: python producer.py
+    env_file: .env
+    depends_on:
+      - kafka
+
+  # --- 5. THE FASTAPI BACKEND ---
+  api:
+    build: .
+    command: uvicorn api:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      consumer:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/', timeout=3)\" 2>/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s  # ML model needs ~30-50s to load; don't count failures until then
+
+  # --- 6. THE STREAMLIT DASHBOARD ---
+  dashboard:
+    build: .
+    command: streamlit run dashboard.py --server.address=0.0.0.0
+    ports:
+      - "8501:8501"
+    depends_on:
+      api:
+        condition: service_healthy  # Only start AFTER API is actually serving
+
+volumes:
+  postgres_data:

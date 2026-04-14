@@ -1,0 +1,12 @@
+# Environments
+.env
+__pycache__/
+*.pyc
+
+# Virtual Environments
+venv/
+env/
+
+# Docker local data volumes (DO NOT push your massive database to GitHub!)
+postgres_data/
+chroma_data/
