@@ -72,7 +72,7 @@ services:
     ports:
       - "8501:8501"
     depends_on:
-      -api
+      - api
 
 volumes:
   postgres_data:
