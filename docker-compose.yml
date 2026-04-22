@@ -62,16 +62,8 @@ services:
       - "8000:8000"
     env_file: .env
     depends_on:
-      postgres:
-        condition: service_healthy
-      consumer:
-        condition: service_started
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
-      interval: 10s
-      timeout: 5s
-      retries: 12
-      start_period: 30s
+      - postgres
+      - consumer
     
   # --- 6. THE STREAMLIT DASHBOARD ---
   dashboard:
@@ -80,8 +72,7 @@ services:
     ports:
       - "8501:8501"
     depends_on:
-      api:
-        condition: service_healthy
+      -api
 
 volumes:
   postgres_data:
