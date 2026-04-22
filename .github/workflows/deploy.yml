@@ -17,6 +17,7 @@ jobs:
     - name: 🔐 Create the invisible .env file using the Vault Secrets
       run: |
         echo "NEWS_API_KEY=${{ secrets.NEWS_API_KEY }}" >> .env
+        echo "GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" >> .env
         # If you added a HuggingFace token earlier, remove the '#' from the line below:
         # echo "HUGGINGFACE_TOKEN=${{ secrets.HUGGINGFACE_TOKEN }}" >> .env
 
