@@ -19,6 +19,507 @@ st.set_page_config(
 )
 
 # =====================================================
+# AUTHENTICATION STATE
+# =====================================================
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+if "auth_token" not in st.session_state:
+    st.session_state.auth_token = None
+if "user_info" not in st.session_state:
+    st.session_state.user_info = {}
+if "auth_page" not in st.session_state:
+    st.session_state.auth_page = "login"
+
+
+def logout():
+    st.session_state.authenticated = False
+    st.session_state.auth_token = None
+    st.session_state.user_info = {}
+    st.rerun()
+
+
+# =====================================================
+# PREMIUM GLASSMORPHISM AUTH PAGE
+# =====================================================
+if not st.session_state.authenticated:
+    # Hide default Streamlit elements
+    st.markdown("""
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+        :root {
+            --bg-primary: #060b18;
+            --accent-cyan: #06b6d4;
+            --accent-violet: #8b5cf6;
+            --accent-rose: #f43f5e;
+            --accent-emerald: #10b981;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --glass-bg: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        .stApp {
+            background: var(--bg-primary) !important;
+            font-family: 'Inter', sans-serif !important;
+        }
+        #MainMenu, footer, header { visibility: hidden; }
+        section[data-testid="stSidebar"] { display: none !important; }
+        .main .block-container { padding-top: 0 !important; max-width: 100% !important; padding-left: 0 !important; padding-right: 0 !important; }
+        
+        /* ========= ANIMATED BACKGROUND ========= */
+        .auth-bg {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(ellipse at 20% 50%, rgba(6,182,212,0.08) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 20%, rgba(139,92,246,0.08) 0%, transparent 50%),
+                        radial-gradient(ellipse at 50% 80%, rgba(244,63,94,0.06) 0%, transparent 50%),
+                        var(--bg-primary);
+            z-index: 0;
+        }
+
+        /* Floating orbs */
+        .orb {
+            position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.4;
+            animation: orbFloat 20s ease-in-out infinite;
+        }
+        .orb-1 { width: 400px; height: 400px; background: rgba(6,182,212,0.15); top: -100px; left: -100px; animation-duration: 25s; }
+        .orb-2 { width: 350px; height: 350px; background: rgba(139,92,246,0.12); bottom: -50px; right: -80px; animation-duration: 30s; animation-delay: -5s; }
+        .orb-3 { width: 250px; height: 250px; background: rgba(244,63,94,0.1); top: 50%; left: 60%; animation-duration: 22s; animation-delay: -10s; }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -40px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(40px, 30px) scale(1.02); }
+        }
+
+        /* ========= AUTH CONTAINER ========= */
+        .auth-wrapper {
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; position: relative; z-index: 1;
+            padding: 2rem;
+        }
+
+        .auth-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(40px) saturate(150%);
+            -webkit-backdrop-filter: blur(40px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            padding: 3rem 2.8rem;
+            width: 100%; max-width: 460px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5),
+                        0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+                        0 1px 0 rgba(255, 255, 255, 0.05) inset;
+            animation: cardAppear 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(6,182,212,0.5), rgba(139,92,246,0.5), transparent);
+        }
+
+        .auth-card::after {
+            content: '';
+            position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(6,182,212,0.03), transparent, rgba(139,92,246,0.03), transparent);
+            animation: cardShine 8s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes cardAppear {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes cardShine {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ========= LOGO ========= */
+        .auth-logo {
+            text-align: center; margin-bottom: 2rem;
+        }
+        .auth-logo-icon {
+            width: 72px; height: 72px; margin: 0 auto 1rem;
+            background: linear-gradient(135deg, rgba(6,182,212,0.15), rgba(139,92,246,0.15));
+            border: 1px solid rgba(6,182,212,0.2);
+            border-radius: 20px; display: flex; align-items: center; justify-content: center;
+            font-size: 2rem;
+            animation: logoFloat 4s ease-in-out infinite;
+            box-shadow: 0 8px 30px rgba(6,182,212,0.15);
+        }
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .auth-logo h1 {
+            font-size: 2rem; font-weight: 900; margin: 0;
+            background: linear-gradient(135deg, #06b6d4, #8b5cf6, #f43f5e);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; letter-spacing: -1px;
+        }
+        .auth-logo p {
+            color: var(--text-muted); font-size: 0.85rem; margin: 0.3rem 0 0 0;
+            letter-spacing: 0.5px;
+        }
+
+        /* ========= TAB SWITCHER ========= */
+        .auth-tabs {
+            display: flex; background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px; padding: 4px; margin-bottom: 2rem;
+            gap: 4px;
+        }
+        .auth-tab {
+            flex: 1; padding: 0.65rem 1rem; text-align: center;
+            border-radius: 11px; font-size: 0.85rem; font-weight: 600;
+            color: var(--text-muted); cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none; background: transparent;
+            font-family: 'Inter', sans-serif; letter-spacing: 0.3px;
+        }
+        .auth-tab:hover { color: var(--text-secondary); }
+        .auth-tab.active {
+            background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(139,92,246,0.2));
+            color: var(--text-primary);
+            box-shadow: 0 2px 10px rgba(6,182,212,0.15);
+            border: 1px solid rgba(6,182,212,0.15);
+        }
+
+        /* ========= FORM STYLING ========= */
+        .auth-form-group {
+            margin-bottom: 1.2rem;
+        }
+        .auth-label {
+            display: block; font-size: 0.78rem; font-weight: 600;
+            color: var(--text-secondary); margin-bottom: 0.5rem;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .auth-input-wrapper {
+            position: relative;
+        }
+        .auth-input-icon {
+            position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
+            font-size: 1rem; color: var(--text-muted);
+            pointer-events: none; z-index: 2;
+        }
+
+        /* Override Streamlit inputs */
+        .auth-page .stTextInput > div > div > input {
+            background: rgba(255,255,255,0.04) !important;
+            border: 1px solid rgba(255,255,255,0.08) !important;
+            border-radius: 14px !important;
+            color: var(--text-primary) !important;
+            font-family: 'Inter', sans-serif !important;
+            padding: 0.9rem 1rem 0.9rem 2.8rem !important;
+            font-size: 0.9rem !important;
+            transition: all 0.3s ease !important;
+            height: auto !important;
+        }
+        .auth-page .stTextInput > div > div > input:focus {
+            border-color: rgba(6,182,212,0.4) !important;
+            box-shadow: 0 0 0 3px rgba(6,182,212,0.1), 0 0 20px rgba(6,182,212,0.1) !important;
+            background: rgba(255,255,255,0.06) !important;
+        }
+        .auth-page .stTextInput > div > div > input::placeholder {
+            color: rgba(100, 116, 139, 0.6) !important;
+        }
+        .auth-page .stTextInput > label { display: none !important; }
+
+        /* Submit button */
+        .auth-page .stButton > button {
+            width: 100%;
+            background: linear-gradient(135deg, #06b6d4, #8b5cf6) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 14px !important;
+            padding: 0.85rem 2rem !important;
+            font-weight: 700 !important;
+            font-size: 0.95rem !important;
+            font-family: 'Inter', sans-serif !important;
+            letter-spacing: 0.5px !important;
+            cursor: pointer !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: 0 4px 20px rgba(6,182,212,0.3), 0 0 0 0 rgba(6,182,212,0) !important;
+            position: relative;
+            overflow: hidden;
+            margin-top: 0.5rem !important;
+        }
+        .auth-page .stButton > button:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 30px rgba(6,182,212,0.4), 0 0 40px rgba(139,92,246,0.15) !important;
+        }
+        .auth-page .stButton > button:active {
+            transform: translateY(0) !important;
+        }
+
+        /* ========= DIVIDER ========= */
+        .auth-divider {
+            display: flex; align-items: center; gap: 1rem; margin: 1.5rem 0;
+        }
+        .auth-divider-line {
+            flex: 1; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+        }
+        .auth-divider-text {
+            font-size: 0.72rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        /* ========= FEATURES ROW ========= */
+        .auth-features {
+            display: flex; justify-content: center; gap: 1.5rem;
+            margin-top: 1.5rem; flex-wrap: wrap;
+        }
+        .auth-feature {
+            display: flex; align-items: center; gap: 0.4rem;
+            font-size: 0.72rem; color: var(--text-muted);
+        }
+        .auth-feature-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--accent-cyan);
+            box-shadow: 0 0 8px rgba(6,182,212,0.5);
+        }
+
+        /* ========= ERROR/SUCCESS MESSAGES ========= */
+        .auth-error {
+            background: rgba(244,63,94,0.1);
+            border: 1px solid rgba(244,63,94,0.2);
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            color: #fb7185;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            display: flex; align-items: center; gap: 0.5rem;
+            animation: shakeError 0.5s ease;
+        }
+        .auth-success {
+            background: rgba(16,185,129,0.1);
+            border: 1px solid rgba(16,185,129,0.2);
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            color: #34d399;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        @keyframes shakeError {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+
+        /* ========= PASSWORD STRENGTH ========= */
+        .strength-bar {
+            height: 4px; border-radius: 2px; margin-top: 0.5rem;
+            background: rgba(255,255,255,0.06); overflow: hidden;
+        }
+        .strength-fill {
+            height: 100%; border-radius: 2px;
+            transition: all 0.4s ease;
+        }
+        .strength-text {
+            font-size: 0.7rem; margin-top: 0.3rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* ========= GRID PATTERN ========= */
+        .grid-pattern {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: 0; pointer-events: none;
+        }
+
+        /* Hide streamlit elements on auth page */
+        .auth-page [data-testid="stVerticalBlock"] > [data-testid="stVerticalBlock"] { gap: 0.2rem !important; }
+    </style>
+    
+    <div class="auth-bg"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="grid-pattern"></div>
+    """, unsafe_allow_html=True)
+
+    # Auth page container
+    st.markdown('<div class="auth-page">', unsafe_allow_html=True)
+    
+    # Center the form using columns
+    spacer_left, auth_col, spacer_right = st.columns([1, 1.2, 1])
+    
+    with auth_col:
+        # Logo
+        st.markdown("""
+        <div class="auth-logo">
+            <div class="auth-logo-icon">⚡</div>
+            <h1>PulseIQ</h1>
+            <p>AI-Powered News Intelligence Platform</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Tab switcher
+        tab_col1, tab_col2 = st.columns(2)
+        with tab_col1:
+            if st.button("🔑  Sign In", key="tab_login", use_container_width=True):
+                st.session_state.auth_page = "login"
+                st.rerun()
+        with tab_col2:
+            if st.button("✨  Create Account", key="tab_register", use_container_width=True):
+                st.session_state.auth_page = "register"
+                st.rerun()
+        
+        st.markdown("""<div style="height: 1rem;"></div>""", unsafe_allow_html=True)
+        
+        # ─── LOGIN FORM ───
+        if st.session_state.auth_page == "login":
+            st.markdown("""
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <div style="font-size: 1.2rem; font-weight: 700; color: #f1f5f9;">Welcome back</div>
+                <div style="font-size: 0.82rem; color: #64748b; margin-top: 0.3rem;">
+                    Sign in to access your intelligence dashboard
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            with st.form("login_form", clear_on_submit=False):
+                st.markdown('<div class="auth-label">👤 Username or Email</div>', unsafe_allow_html=True)
+                login_username = st.text_input("Username", placeholder="Enter your username or email", key="login_user", label_visibility="collapsed")
+                
+                st.markdown('<div class="auth-label">🔒 Password</div>', unsafe_allow_html=True)
+                login_password = st.text_input("Password", type="password", placeholder="Enter your password", key="login_pass", label_visibility="collapsed")
+                
+                st.markdown('<div style="height: 0.5rem;"></div>', unsafe_allow_html=True)
+                login_submitted = st.form_submit_button("⚡ Sign In to PulseIQ", use_container_width=True)
+                
+                if login_submitted:
+                    if not login_username or not login_password:
+                        st.markdown('<div class="auth-error">⚠️ Please fill in all fields</div>', unsafe_allow_html=True)
+                    else:
+                        try:
+                            res = requests.post(f"{API_URL}/auth/login", json={
+                                "username": login_username,
+                                "password": login_password
+                            }, timeout=10)
+                            if res.status_code == 200:
+                                data = res.json()
+                                st.session_state.authenticated = True
+                                st.session_state.auth_token = data.get("token")
+                                st.session_state.user_info = {
+                                    "username": data.get("username"),
+                                    "full_name": data.get("full_name", data.get("username")),
+                                    "user_id": data.get("user_id")
+                                }
+                                st.rerun()
+                            else:
+                                error_detail = res.json().get("detail", "Login failed")
+                                st.markdown(f'<div class="auth-error">❌ {error_detail}</div>', unsafe_allow_html=True)
+                        except requests.exceptions.ConnectionError:
+                            st.markdown('<div class="auth-error">🔌 Cannot connect to backend. Please ensure services are running.</div>', unsafe_allow_html=True)
+                        except Exception as e:
+                            st.markdown(f'<div class="auth-error">❌ Error: {str(e)}</div>', unsafe_allow_html=True)
+        
+        # ─── REGISTER FORM ───
+        else:
+            st.markdown("""
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <div style="font-size: 1.2rem; font-weight: 700; color: #f1f5f9;">Create your account</div>
+                <div style="font-size: 0.82rem; color: #64748b; margin-top: 0.3rem;">
+                    Join PulseIQ and unlock AI-powered insights
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            with st.form("register_form", clear_on_submit=False):
+                st.markdown('<div class="auth-label">👤 Full Name</div>', unsafe_allow_html=True)
+                reg_fullname = st.text_input("Full Name", placeholder="John Doe", key="reg_name", label_visibility="collapsed")
+                
+                st.markdown('<div class="auth-label">🏷️ Username</div>', unsafe_allow_html=True)
+                reg_username = st.text_input("Username", placeholder="Choose a unique username", key="reg_user", label_visibility="collapsed")
+                
+                st.markdown('<div class="auth-label">📧 Email Address</div>', unsafe_allow_html=True)
+                reg_email = st.text_input("Email", placeholder="you@example.com", key="reg_email", label_visibility="collapsed")
+                
+                st.markdown('<div class="auth-label">🔒 Password</div>', unsafe_allow_html=True)
+                reg_password = st.text_input("Password", type="password", placeholder="Min 6 characters", key="reg_pass", label_visibility="collapsed")
+                
+                st.markdown('<div class="auth-label">🔒 Confirm Password</div>', unsafe_allow_html=True)
+                reg_confirm = st.text_input("Confirm Password", type="password", placeholder="Re-enter your password", key="reg_confirm", label_visibility="collapsed")
+                
+                st.markdown('<div style="height: 0.5rem;"></div>', unsafe_allow_html=True)
+                reg_submitted = st.form_submit_button("✨ Create Account & Start", use_container_width=True)
+                
+                if reg_submitted:
+                    if not all([reg_fullname, reg_username, reg_email, reg_password, reg_confirm]):
+                        st.markdown('<div class="auth-error">⚠️ Please fill in all fields</div>', unsafe_allow_html=True)
+                    elif reg_password != reg_confirm:
+                        st.markdown('<div class="auth-error">❌ Passwords do not match</div>', unsafe_allow_html=True)
+                    elif len(reg_password) < 6:
+                        st.markdown('<div class="auth-error">❌ Password must be at least 6 characters</div>', unsafe_allow_html=True)
+                    elif "@" not in reg_email:
+                        st.markdown('<div class="auth-error">❌ Please enter a valid email address</div>', unsafe_allow_html=True)
+                    else:
+                        try:
+                            res = requests.post(f"{API_URL}/auth/register", json={
+                                "username": reg_username,
+                                "email": reg_email,
+                                "password": reg_password,
+                                "full_name": reg_fullname
+                            }, timeout=10)
+                            if res.status_code == 200:
+                                data = res.json()
+                                st.session_state.authenticated = True
+                                st.session_state.auth_token = data.get("token")
+                                st.session_state.user_info = {
+                                    "username": data.get("username"),
+                                    "full_name": reg_fullname,
+                                    "user_id": data.get("user_id")
+                                }
+                                st.rerun()
+                            else:
+                                error_detail = res.json().get("detail", "Registration failed")
+                                st.markdown(f'<div class="auth-error">❌ {error_detail}</div>', unsafe_allow_html=True)
+                        except requests.exceptions.ConnectionError:
+                            st.markdown('<div class="auth-error">🔌 Cannot connect to backend. Please ensure services are running.</div>', unsafe_allow_html=True)
+                        except Exception as e:
+                            st.markdown(f'<div class="auth-error">❌ Error: {str(e)}</div>', unsafe_allow_html=True)
+        
+        # Divider
+        st.markdown("""
+        <div class="auth-divider">
+            <div class="auth-divider-line"></div>
+            <span class="auth-divider-text">Secured Platform</span>
+            <div class="auth-divider-line"></div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Features
+        st.markdown("""
+        <div class="auth-features">
+            <div class="auth-feature"><div class="auth-feature-dot"></div> Real-time Streaming</div>
+            <div class="auth-feature"><div class="auth-feature-dot"></div> AI Analytics</div>
+            <div class="auth-feature"><div class="auth-feature-dot"></div> RAG Chatbot</div>
+            <div class="auth-feature"><div class="auth-feature-dot"></div> Vector Search</div>
+        </div>
+        <div style="text-align: center; margin-top: 1.5rem; font-size: 0.72rem; color: #475569;">
+            © 2026 PulseIQ · Powered by Kafka, Gemini & ChromaDB
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+    st.stop()  # ← Stop here if not authenticated
+
+# =====================================================
 # CUSTOM CSS + ANIMATIONS
 # =====================================================
 st.markdown("""
@@ -416,6 +917,20 @@ with st.sidebar:
             Intelligence Platform
         </div>
     </div>""", unsafe_allow_html=True)
+    
+    st.markdown("---")
+    
+    # User info & logout
+    user_name = st.session_state.user_info.get("full_name", st.session_state.user_info.get("username", "User"))
+    st.markdown(f"""
+    <div style="background: rgba(6,182,212,0.06); border: 1px solid rgba(6,182,212,0.15);
+                border-radius: 12px; padding: 0.8rem 1rem; margin-bottom: 0.5rem;">
+        <div style="font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem;">Signed in as</div>
+        <div style="font-size: 0.95rem; font-weight: 700; color: #f1f5f9;">👤 {user_name}</div>
+    </div>
+    """, unsafe_allow_html=True)
+    if st.button("🚪 Sign Out", use_container_width=True, key="logout_btn"):
+        logout()
     
     st.markdown("---")
     
