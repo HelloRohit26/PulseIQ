@@ -63,11 +63,11 @@ def get_db_connection():
 
 # --- 3. API ENDPOINTS ---
 
-@app.get("/")
+@app.get("/api")
 def read_root():
     return {"message": "Welcome to the PulseIQ API Backend!"}
 
-@app.get("/articles")
+@app.get("/api/articles")
 def get_recent_articles(limit: int = 10):
     """Fetches the most recent articles from PostgreSQL."""
     conn = get_db_connection()
@@ -97,7 +97,7 @@ class TokenRequest(BaseModel):
 class QueryRequest(BaseModel):
     question: str
 
-@app.post("/query")
+@app.post("/api/query")
 def ask_pulseiq(request: QueryRequest):
     """Hits the Gemini + ChromaDB RAG pipeline."""
     try:
@@ -107,7 +107,7 @@ def ask_pulseiq(request: QueryRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 # --- AUTH ENDPOINTS ---
-@app.post("/auth/register")
+@app.post("/api/auth/register")
 def api_register(request: RegisterRequest):
     """Register a new user."""
     if len(request.password) < 6:
@@ -120,7 +120,7 @@ def api_register(request: RegisterRequest):
         raise HTTPException(status_code=400, detail=result["error"])
     return result
 
-@app.post("/auth/login")
+@app.post("/api/auth/login")
 def api_login(request: LoginRequest):
     """Authenticate a user."""
     result = login_user(request.username, request.password)
@@ -128,7 +128,7 @@ def api_login(request: LoginRequest):
         raise HTTPException(status_code=401, detail=result["error"])
     return result
 
-@app.post("/auth/verify")
+@app.post("/api/auth/verify")
 def api_verify(request: TokenRequest):
     """Verify a JWT token."""
     payload = verify_token(request.token)
@@ -136,7 +136,7 @@ def api_verify(request: TokenRequest):
         raise HTTPException(status_code=401, detail="Invalid or expired token")
     return {"valid": True, "user": payload}
 
-@app.post("/cluster")
+@app.post("/api/cluster")
 def cluster_articles():
     """Runs K-Means Clustering to group similar articles into topics."""
     conn = get_db_connection()
