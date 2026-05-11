@@ -306,7 +306,7 @@
             btn.disabled = true;
 
             try {
-                const url = isSignupMode ? 'http://localhost:8000/auth/register' : 'http://localhost:8000/auth/login';
+                const url = isSignupMode ? '/api/auth/register' : '/api/auth/login';
                 
                 // For register, we generate a username from the email if not explicitly provided
                 const username = isSignupMode ? email.split('@')[0] + Math.floor(Math.random() * 1000) : email;
