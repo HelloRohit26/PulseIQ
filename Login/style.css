@@ -1,0 +1,390 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    /* Deep space dark base */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.login-container {
+    display: flex;
+    background: rgba(255, 255, 255, 0.03); 
+    border-radius: 20px;
+    
+    /* --- 3D BORDER MAGIC --- */
+    /* Upar aur Left se light aa rahi hai (Highlight) */
+    border-top: 1.5px solid rgba(255, 255, 255, 0.3);
+    border-left: 1.5px solid rgba(255, 255, 255, 0.2);
+    
+    /* Neeche aur Right mein andhera hai (Shadow) */
+    border-bottom: 1.5px solid rgba(0, 0, 0, 0.7);
+    border-right: 1.5px solid rgba(0, 0, 0, 0.6);
+    
+    /* --- 3D THICKNESS & DEPTH (Box Shadow) --- */
+    box-shadow: 
+        0 30px 60px rgba(0, 0, 0, 0.7), /* Bahar ka lamba drop shadow */
+        inset 2px 2px 10px rgba(255, 255, 255, 0.1), /* Andar ka top highlight */
+        inset -5px -5px 15px rgba(0, 0, 0, 0.5); /* Andar ki motai (thickness) */
+        
+    width: 900px;
+    max-width: 95%;
+    overflow: hidden;
+    backdrop-filter: blur(15px); /* Background ko aur thoda blur karega */
+    
+    /* Hawa mein tairne wala 3D Hover Effect */
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+/* Jab form par mouse aayega toh box aur thoda 3D hoke upar uthega */
+.login-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 
+        0 40px 80px rgba(0, 0, 0, 0.9), 
+        inset 2px 2px 10px rgba(255, 255, 255, 0.15), 
+        inset -5px -5px 15px rgba(0, 0, 0, 0.6);
+}
+/* --- LEFT PANEL STYLES (Infinite Tunnel Video Background) --- */
+.left-panel {
+    flex: 1; 
+    position: relative;
+    background: #000; /* Fallback black color */
+    overflow: hidden; 
+    min-height: 550px;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 1;
+}
+
+/* Video ko screen par center aur cover karne ke liye */
+#bg-video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    transform: translate(-50%, -50%);
+    z-index: 0; /* Sabse piche rahega */
+    object-fit: cover;
+    opacity: 0.8; /* Thoda sa transparent kiya hai taki black robot uske upar clear dikhe */
+}
+
+/* Robot Container */
+.interactive-area {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 5; /* Video ke aage rahega */
+}
+
+spline-viewer {
+    position: absolute;
+    width: 160%; 
+    height: 100%; 
+    left: -10%; 
+    top: -5%;
+    transform: scale(1.05);
+}
+
+.overlay-text {
+    position: absolute;
+    bottom: 40px; 
+    left: 40px;
+    color: white;
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    pointer-events: none; 
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 5px 15px rgba(0,0,0,1);
+    z-index: 10; 
+    white-space: pre-line; 
+}
+
+/* --- THE BLINKING NEON CURSOR --- */
+.overlay-text::after {
+    content: '|'; /* Cursor ka symbol */
+    color: #66d9ef; /* Cyan neon color */
+    animation: blinkCursor 0.7s infinite;
+}
+
+@keyframes blinkCursor {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+
+/* --- CRAZY RIGHT PANEL (GLASS NEBULA UI) --- */
+.right-panel {
+    flex: 1;
+    padding: 60px 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    background: rgba(15, 23, 42, 0.4);
+    /* Dark glassy overlay */
+    overflow: hidden;
+    z-index: 1;
+    color: white;
+}
+
+/* 1. THE SHIFTING MESH MESH (NEBULA BACKGROUND) */
+.right-panel::before,
+.right-panel::after {
+    content: '';
+    position: absolute;
+    width: 200%;
+    /* Massive oversized blobs */
+    height: 200%;
+    filter: blur(50px);
+    /* Tightly blurred complex pattern */
+    z-index: -1;
+    animation: rotateMesh 30s infinite linear;
+}
+
+/* Stacking complex multi-color radial gradients for deep space nebula look */
+.right-panel::before {
+    background-image:
+        radial-gradient(at 10% 10%, hsla(180, 100%, 70%, 0.8) 0px, transparent 50%),
+        radial-gradient(at 90% 90%, hsla(280, 100%, 70%, 0.8) 0px, transparent 50%),
+        radial-gradient(at 90% 10%, hsla(320, 100%, 70%, 0.8) 0px, transparent 50%);
+    opacity: 0.6;
+    left: -50%;
+    top: -50%;
+}
+
+.right-panel::after {
+    background-image:
+        radial-gradient(at 50% 50%, hsla(210, 100%, 70%, 0.8) 0px, transparent 50%),
+        radial-gradient(at 10% 90%, hsla(160, 100%, 70%, 0.8) 0px, transparent 50%);
+    opacity: 0.6;
+    right: -50%;
+    bottom: -50%;
+    animation-duration: 45s;
+    animation-direction: reverse;
+    /* Spin in opposite direction */
+}
+
+@keyframes rotateMesh {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Content wrapper keeps text above the nebula */
+.right-panel>* {
+    position: relative;
+    z-index: 2;
+}
+
+/* Typography & Shimmering Title */
+.logo {
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+h2 {
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+
+    /* 2. NEON SHIMMER EFFECT */
+    background: linear-gradient(90deg, #66d9ef, #ae81ff, #f92672, #66d9ef);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: textShimmer 3s linear infinite;
+}
+
+@keyframes textShimmer {
+    to {
+        background-position: 200% center;
+    }
+}
+
+.subtitle {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+}
+
+/* Inputs & Forms */
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    display: block;
+    font-size: 0.8rem;
+    margin-bottom: 7px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Deep Glass inputs */
+.input-group input {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    color: white;
+    outline: none;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Jab input par click karoge (Neon Border & Pulse) */
+.input-group input:focus {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: #66d9ef;
+
+    /* 3. NEON PULSE Glow */
+    box-shadow: 0 0 15px rgba(102, 217, 239, 0.5), inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    animation: focusRipple 1s infinite alternate;
+}
+
+@keyframes focusRipple {
+    to {
+        box-shadow: 0 0 25px rgba(102, 217, 239, 0.8), inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+}
+
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    margin-bottom: 25px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.forgot-password {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.forgot-password:hover {
+    color: #66d9ef;
+}
+
+/* Liquid Gradient Animated Button */
+.btn-primary {
+    width: 100%;
+    padding: 14px;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 15px;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+
+    /* Stronger Animated Gradient */
+    background: linear-gradient(120deg, #00d2ff, #3a7bd5, #ae81ff, #f92672);
+    background-size: 300% 300%;
+    animation: liquidGradient 6s ease infinite;
+    box-shadow: 0 4px 20px rgba(102, 217, 239, 0.4);
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: 0 8px 30px rgba(102, 217, 239, 0.6);
+}
+
+@keyframes liquidGradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.btn-google {
+    width: 100%;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-google:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.signup-link {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.signup-link a {
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.signup-link a:hover {
+    color: #66d9ef;
+}
+
+/* Watermark Removal */
+spline-viewer::part(logo) {
+    display: none !important;
+}
+
+/* --- LIVE RAIN CANVAS STYLE --- */
+#rainCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    /* Bahut zaroori: Isse form click hone mein koi problem nahi hogi */
+    z-index: 0;
+    /* Background nebula ke upar, text ke piche */
+}

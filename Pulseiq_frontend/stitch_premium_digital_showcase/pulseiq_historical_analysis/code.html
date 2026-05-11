@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Historical Analysis - PulseIQ</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&amp;family=Work+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error-container": "#ffdad6",
+                        "outline": "#849396",
+                        "surface-bright": "#333a3c",
+                        "tertiary": "#ffeac0",
+                        "surface-dim": "#0d1516",
+                        "on-tertiary-fixed-variant": "#594400",
+                        "surface-container-lowest": "#080f11",
+                        "on-primary-fixed": "#001f24",
+                        "on-secondary-container": "#ddcdff",
+                        "secondary-fixed": "#e9ddff",
+                        "surface-container-low": "#151d1e",
+                        "on-surface": "#dce4e5",
+                        "inverse-surface": "#dce4e5",
+                        "accent-electric": "#00E5FF",
+                        "background": "#0B0E14",
+                        "on-tertiary-fixed": "#251a00",
+                        "sentiment-positive": "#22C55E",
+                        "surface-tint": "#00daf3",
+                        "sentiment-neutral": "#94A3B8",
+                        "outline-variant": "#3b494c",
+                        "surface-container-high": "#242b2d",
+                        "on-background": "#dce4e5",
+                        "sentiment-negative": "#EF4444",
+                        "primary": "#c3f5ff",
+                        "on-secondary": "#3c0090",
+                        "primary-container": "#00e5ff",
+                        "on-primary-fixed-variant": "#004f58",
+                        "border-subtle": "#30363D",
+                        "on-secondary-fixed": "#23005b",
+                        "on-error": "#690005",
+                        "surface-variant": "#2e3638",
+                        "on-surface-variant": "#bac9cc",
+                        "tertiary-container": "#fec931",
+                        "primary-fixed": "#9cf0ff",
+                        "on-secondary-fixed-variant": "#5700c9",
+                        "inverse-on-surface": "#2a3233",
+                        "on-tertiary": "#3e2e00",
+                        "surface": "#161B22",
+                        "on-primary": "#00363d",
+                        "error": "#ffb4ab",
+                        "tertiary-fixed-dim": "#f3bf26",
+                        "secondary": "#d1bcff",
+                        "on-tertiary-container": "#6f5500",
+                        "secondary-fixed-dim": "#d1bcff",
+                        "primary-fixed-dim": "#00daf3",
+                        "inverse-primary": "#006875",
+                        "error-container": "#93000a",
+                        "on-primary-container": "#00626e",
+                        "secondary-container": "#7000ff",
+                        "tertiary-fixed": "#ffdf96",
+                        "surface-container": "#192122",
+                        "surface-container-highest": "#2e3638"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "container-margin": "24px",
+                        "card-padding": "20px",
+                        "gutter": "16px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "ticker-data": ["Space Grotesk"],
+                        "label-caps": ["Work Sans"],
+                        "headline-xl": ["Space Grotesk"],
+                        "chat-bubble": ["Work Sans"],
+                        "body-md": ["Work Sans"]
+                    },
+                    "fontSize": {
+                        "ticker-data": ["14px", { "lineHeight": "1", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-xl": ["32px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "chat-bubble": ["15px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Pulse Animation for KPI */
+        @keyframes pulse-opacity {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .animate-pulse-slow {
+            animation: pulse-opacity 3s ease-in-out infinite;
+        }
+
+        /* Custom Scrollbar for sleekness */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B0E14; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #30363D; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00E5FF; 
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased min-h-screen flex flex-col overflow-hidden selection:bg-accent-electric selection:text-background">
+<!-- TopAppBar Component -->
+<header class="bg-background/80 backdrop-blur-md border-b border-border-subtle docked full-width top-0 z-50 flex justify-between items-center w-full px-container-margin py-4">
+<div class="flex items-center gap-8">
+<div class="font-headline-xl text-headline-xl font-bold text-accent-electric tracking-tight">PulseIQ</div>
+<nav class="hidden md:flex gap-6">
+<a class="text-on-surface-variant font-medium hover:text-primary-fixed transition-colors duration-200" href="#">Intelligence</a>
+<a class="text-on-surface-variant font-medium hover:text-primary-fixed transition-colors duration-200" href="#">Markets</a>
+<a class="text-on-surface-variant font-medium hover:text-primary-fixed transition-colors duration-200" href="#">Signals</a>
+<a class="text-on-surface-variant font-medium hover:text-primary-fixed transition-colors duration-200" href="#">Analysis</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button aria-label="sensors" class="text-on-surface-variant hover:text-accent-electric transition-colors">
+<span class="material-symbols-outlined">sensors</span>
+</button>
+<button aria-label="notifications" class="text-on-surface-variant hover:text-accent-electric transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-accent-electric rounded-full"></span>
+</button>
+<button aria-label="account_circle" class="text-on-surface-variant hover:text-accent-electric transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- SideNavBar Component -->
+<aside class="hidden md:flex flex-col bg-surface docked left-0 h-full w-64 border-r border-border-subtle fixed left-0 top-[72px] h-[calc(100vh-72px)] py-6 justify-between z-40">
+<div>
+<div class="px-6 mb-8">
+<h2 class="text-on-surface font-headline-xl text-[20px] font-bold mb-1">AI Terminal</h2>
+<p class="text-accent-electric font-label-caps text-label-caps opacity-80">Gemini Ultra Active</p>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-variant hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined">smart_toy</span>
+<span class="font-label-caps text-label-caps">Deep Pulse Chat</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-variant hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined">filter_list</span>
+<span class="font-label-caps text-label-caps">Sector Filters</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-variant hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-caps text-label-caps">Sentiment Map</span>
+</a>
+<!-- ACTIVE STATE -->
+<a class="flex items-center gap-3 bg-secondary-container/20 text-accent-electric border-r-4 border-accent-electric px-4 py-3 hover:bg-surface-variant hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-caps text-label-caps">Historical</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-variant hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined">code</span>
+<span class="font-label-caps text-label-caps">API Terminal</span>
+</a>
+</nav>
+</div>
+<div class="px-6 mt-auto">
+<button class="w-full bg-accent-electric text-background font-ticker-data text-ticker-data py-3 rounded hover:bg-primary-fixed transition-colors flex justify-center items-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span> New Investigation
+                </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto w-full md:ml-64 p-container-margin bg-background relative mt-[72px] h-[calc(100vh-72px)]">
+<!-- Page Header & Filters -->
+<div class="mb-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+<div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface mb-2">Historical Analysis</h1>
+<p class="text-on-surface-variant text-sm font-body-md">Analyze past sentiment trends and market impact across specified temporal vectors.</p>
+</div>
+<div class="flex flex-wrap items-center gap-3">
+<div class="bg-surface border border-border-subtle rounded flex items-center px-3 py-2">
+<span class="material-symbols-outlined text-on-surface-variant mr-2 text-[18px]">calendar_month</span>
+<select class="bg-transparent text-on-surface font-label-caps text-label-caps outline-none border-none focus:ring-0 p-0 text-sm appearance-none cursor-pointer">
+<option value="q1">Last Quarter</option>
+<option value="ytd">Year to Date</option>
+<option value="1y">1 Year</option>
+<option value="custom">Custom Range...</option>
+</select>
+<span class="material-symbols-outlined text-on-surface-variant ml-2 text-[16px]">expand_more</span>
+</div>
+<div class="bg-surface border border-border-subtle rounded flex items-center px-3 py-2">
+<span class="material-symbols-outlined text-on-surface-variant mr-2 text-[18px]">filter_alt</span>
+<select class="bg-transparent text-on-surface font-label-caps text-label-caps outline-none border-none focus:ring-0 p-0 text-sm appearance-none cursor-pointer">
+<option value="all">All Events</option>
+<option value="fed">Fed Decisions</option>
+<option value="earnings">Earnings Calls</option>
+<option value="macro">Macro Data</option>
+</select>
+<span class="material-symbols-outlined text-on-surface-variant ml-2 text-[16px]">expand_more</span>
+</div>
+<button class="bg-transparent border border-accent-electric text-accent-electric font-label-caps text-label-caps px-4 py-2 rounded hover:bg-accent-electric/10 transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">download</span> Export Data
+                    </button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+<!-- Main Longitudinal Chart (Spans 2 columns on large screens) -->
+<div class="xl:col-span-2 bg-surface border border-border-subtle rounded-lg p-card-padding flex flex-col relative overflow-hidden">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-ticker-data text-ticker-data text-on-surface">Longitudinal Sentiment vs. Volatility</h3>
+<div class="flex gap-2">
+<span class="inline-flex items-center gap-1 bg-sentiment-positive/10 text-sentiment-positive font-label-caps text-label-caps px-2 py-1 rounded-full border border-sentiment-positive/20">
+<span class="w-2 h-2 rounded-full bg-sentiment-positive"></span> Bullish
+                            </span>
+<span class="inline-flex items-center gap-1 bg-sentiment-negative/10 text-sentiment-negative font-label-caps text-label-caps px-2 py-1 rounded-full border border-sentiment-negative/20">
+<span class="w-2 h-2 rounded-full bg-sentiment-negative"></span> Bearish
+                            </span>
+</div>
+</div>
+<!-- Chart Placeholder using CSS Gradients & Positioning to simulate data -->
+<div class="relative h-64 w-full flex items-end mb-4 group cursor-crosshair">
+<!-- Y-Axis Labels -->
+<div class="absolute left-0 top-0 h-full flex flex-col justify-between text-on-surface-variant text-xs font-ticker-data pb-8 pr-2 border-r border-border-subtle">
+<span>100</span>
+<span>50</span>
+<span>0</span>
+<span>-50</span>
+<span>-100</span>
+</div>
+<!-- Data Area -->
+<div class="ml-10 w-full h-full relative border-b border-border-subtle">
+<!-- Grid lines -->
+<div class="absolute w-full h-px top-1/4 bg-border-subtle/50"></div>
+<div class="absolute w-full h-px top-2/4 bg-border-subtle/50"></div>
+<div class="absolute w-full h-px top-3/4 bg-border-subtle/50"></div>
+<!-- Synthetic Area Chart (Sentiment) -->
+<div class="absolute bottom-0 w-full h-full opacity-20 bg-gradient-to-t from-accent-electric to-transparent" style="clip-path: polygon(0% 50%, 10% 40%, 20% 60%, 30% 30%, 40% 70%, 50% 20%, 60% 50%, 70% 10%, 80% 60%, 90% 40%, 100% 20%, 100% 100%, 0% 100%);"></div>
+<!-- Synthetic Line Chart -->
+<svg class="absolute bottom-0 w-full h-full" preserveaspectratio="none" viewbox="0 0 100 100">
+<path d="M0,50 L10,40 L20,60 L30,30 L40,70 L50,20 L60,50 L70,10 L80,60 L90,40 L100,20" fill="none" stroke="#00E5FF" stroke-width="0.5" vector-effect="non-scaling-stroke"></path>
+</svg>
+<!-- Event Annotations -->
+<div class="absolute bottom-0 left-[30%] h-full w-px bg-sentiment-negative/50 border-l border-dashed border-sentiment-negative">
+<div class="absolute top-2 -translate-x-1/2 bg-surface-variant border border-border-subtle px-2 py-1 rounded text-[10px] font-label-caps text-on-surface whitespace-nowrap">Fed Rate Hike</div>
+<div class="absolute top-[30%] -translate-x-1/2 w-2 h-2 rounded-full bg-sentiment-negative shadow-[0_0_8px_#EF4444]"></div>
+</div>
+<div class="absolute bottom-0 left-[70%] h-full w-px bg-sentiment-positive/50 border-l border-dashed border-sentiment-positive">
+<div class="absolute top-8 -translate-x-1/2 bg-surface-variant border border-border-subtle px-2 py-1 rounded text-[10px] font-label-caps text-on-surface whitespace-nowrap">Tech Earnings Beat</div>
+<div class="absolute top-[10%] -translate-x-1/2 w-2 h-2 rounded-full bg-sentiment-positive shadow-[0_0_8px_#22C55E]"></div>
+</div>
+</div>
+<!-- X-Axis Labels -->
+<div class="absolute bottom-0 left-10 w-[calc(100%-2.5rem)] flex justify-between text-on-surface-variant text-xs font-ticker-data pt-2">
+<span>Jan</span>
+<span>Feb</span>
+<span>Mar</span>
+<span>Apr</span>
+<span>May</span>
+<span>Jun</span>
+</div>
+</div>
+</div>
+<!-- Sector Impact Breakdown (1 Column) -->
+<div class="bg-surface border border-border-subtle rounded-lg p-card-padding flex flex-col">
+<h3 class="font-ticker-data text-ticker-data text-on-surface mb-6">Sector Impact Variance</h3>
+<div class="flex-1 flex flex-col justify-center gap-6">
+<!-- Tech Sector -->
+<div>
+<div class="flex justify-between text-sm mb-1">
+<span class="font-label-caps text-on-surface">Technology (XLK)</span>
+<span class="font-ticker-data text-sentiment-positive">+4.2%</span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-1.5">
+<div class="bg-sentiment-positive h-1.5 rounded-full" style="width: 75%"></div>
+</div>
+</div>
+<!-- Energy Sector -->
+<div>
+<div class="flex justify-between text-sm mb-1">
+<span class="font-label-caps text-on-surface">Energy (XLE)</span>
+<span class="font-ticker-data text-sentiment-negative">-1.8%</span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-1.5">
+<div class="bg-sentiment-negative h-1.5 rounded-full" style="width: 35%"></div>
+</div>
+</div>
+<!-- Finance Sector -->
+<div>
+<div class="flex justify-between text-sm mb-1">
+<span class="font-label-caps text-on-surface">Financials (XLF)</span>
+<span class="font-ticker-data text-accent-electric">+0.5%</span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-1.5">
+<div class="bg-accent-electric h-1.5 rounded-full" style="width: 55%"></div>
+</div>
+</div>
+<!-- Healthcare Sector -->
+<div>
+<div class="flex justify-between text-sm mb-1">
+<span class="font-label-caps text-on-surface">Healthcare (XLV)</span>
+<span class="font-ticker-data text-sentiment-negative">-0.2%</span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-1.5">
+<div class="bg-sentiment-negative h-1.5 rounded-full" style="width: 45%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Historical Signal Archive -->
+<div class="bg-surface border border-border-subtle rounded-lg p-card-padding flex flex-col">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-ticker-data text-ticker-data text-on-surface">Historical Signal Archive</h3>
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="w-full bg-background border border-border-subtle text-on-surface text-sm rounded pl-10 pr-3 py-1.5 focus:border-accent-electric focus:ring-1 focus:ring-accent-electric outline-none transition-colors" placeholder="Search signals..." type="text"/>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-sm whitespace-nowrap">
+<thead class="text-on-surface-variant font-label-caps text-[10px] border-b border-border-subtle">
+<tr>
+<th class="pb-3 font-normal">Date / Time</th>
+<th class="pb-3 font-normal">Asset / Entity</th>
+<th class="pb-3 font-normal">Signal Type</th>
+<th class="pb-3 font-normal">Initial Pulse Score</th>
+<th class="pb-3 font-normal">T+30 Outcome</th>
+<th class="pb-3 font-normal">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-subtle font-ticker-data">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-variant/50 transition-colors group cursor-pointer">
+<td class="py-4 text-on-surface-variant">2023-11-15 14:30Z</td>
+<td class="py-4 text-on-surface font-bold">NVDA <span class="text-on-surface-variant text-xs font-normal ml-2">Nvidia Corp</span></td>
+<td class="py-4">
+<span class="inline-flex items-center gap-1 bg-sentiment-positive/10 text-sentiment-positive font-label-caps text-[10px] px-2 py-0.5 rounded border border-sentiment-positive/20">
+                                        Earnings Breakout
+                                    </span>
+</td>
+<td class="py-4 text-accent-electric">94.2</td>
+<td class="py-4 text-sentiment-positive">+12.4%</td>
+<td class="py-4">
+<button class="text-on-surface-variant group-hover:text-accent-electric transition-colors">
+<span class="material-symbols-outlined text-[18px]">receipt_long</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-variant/50 transition-colors group cursor-pointer">
+<td class="py-4 text-on-surface-variant">2023-10-22 09:15Z</td>
+<td class="py-4 text-on-surface font-bold">TSLA <span class="text-on-surface-variant text-xs font-normal ml-2">Tesla Inc</span></td>
+<td class="py-4">
+<span class="inline-flex items-center gap-1 bg-sentiment-negative/10 text-sentiment-negative font-label-caps text-[10px] px-2 py-0.5 rounded border border-sentiment-negative/20">
+                                        Production Miss
+                                    </span>
+</td>
+<td class="py-4 text-sentiment-negative">12.8</td>
+<td class="py-4 text-sentiment-negative">-8.7%</td>
+<td class="py-4">
+<button class="text-on-surface-variant group-hover:text-accent-electric transition-colors">
+<span class="material-symbols-outlined text-[18px]">receipt_long</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-variant/50 transition-colors group cursor-pointer">
+<td class="py-4 text-on-surface-variant">2023-09-10 16:00Z</td>
+<td class="py-4 text-on-surface font-bold">JPM <span class="text-on-surface-variant text-xs font-normal ml-2">JPMorgan Chase</span></td>
+<td class="py-4">
+<span class="inline-flex items-center gap-1 bg-surface-container-highest text-on-surface font-label-caps text-[10px] px-2 py-0.5 rounded border border-border-subtle">
+                                        Macro Shift
+                                    </span>
+</td>
+<td class="py-4 text-on-surface">51.0</td>
+<td class="py-4 text-on-surface-variant">+0.2%</td>
+<td class="py-4">
+<button class="text-on-surface-variant group-hover:text-accent-electric transition-colors">
+<span class="material-symbols-outlined text-[18px]">receipt_long</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-variant/50 transition-colors group cursor-pointer">
+<td class="py-4 text-on-surface-variant">2023-08-05 10:00Z</td>
+<td class="py-4 text-on-surface font-bold">AAPL <span class="text-on-surface-variant text-xs font-normal ml-2">Apple Inc</span></td>
+<td class="py-4">
+<span class="inline-flex items-center gap-1 bg-sentiment-positive/10 text-sentiment-positive font-label-caps text-[10px] px-2 py-0.5 rounded border border-sentiment-positive/20">
+                                        Product Launch
+                                    </span>
+</td>
+<td class="py-4 text-accent-electric">88.5</td>
+<td class="py-4 text-sentiment-positive">+4.1%</td>
+<td class="py-4">
+<button class="text-on-surface-variant group-hover:text-accent-electric transition-colors">
+<span class="material-symbols-outlined text-[18px]">receipt_long</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</main>
+</div>
+</body></html>

@@ -10,9 +10,9 @@ from langchain_classic.chains.combine_documents import create_stuff_documents_ch
 from langchain_classic.chains import create_retrieval_chain
 
 # Load secrets
-load_dotenv()
-if "GEMINI_API_KEY" not in os.environ:
-    print("❌ ERROR: Please add GEMINI_API_KEY to your .env file!")
+load_dotenv(override=True)
+if "GOOGLE_API_KEY" not in os.environ:
+    print("ERROR: Please add GOOGLE_API_KEY to your .env file!")
     exit()
 
 print("--- WAKING UP PULSEIQ AI BRAIN ---")

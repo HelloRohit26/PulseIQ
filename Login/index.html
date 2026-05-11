@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yeti AI - Login</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.92/build/spline-viewer.js"></script>
+
+
+</head>
+
+<body>
+
+    <div class="login-container">
+
+        <div class="left-panel">
+            <video autoplay loop muted playsinline id="bg-video">
+                <source src="v.mp4" type="video/mp4">
+            </video>
+            <div class="interactive-area" id="interactive-area">
+
+                <spline-viewer url="https://prod.spline.design/WltO6Fhihi23c1jo/scene.splinecode"></spline-viewer>
+
+            </div>
+            <h1 class="overlay-text" id="typewriter-text"></h1>
+            
+        </div>
+
+        <div class="right-panel">
+            <canvas id="rainCanvas"></canvas>
+            <div class="logo">PulseIQ</div>
+            <h2 id="formTitle">WELCOME BACK</h2>
+            <p class="subtitle" id="formSubtitle">Enter your email and password to access your account</p>
+
+            <form id="loginForm">
+                <div class="input-group" id="nameGroup" style="display: none;">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" placeholder="Enter your full name">
+                </div>
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="Enter your email" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter your password" required>
+                </div>
+
+                <div class="form-options">
+                    <label class="remember-me">
+                        <input type="checkbox"> Remember me
+                    </label>
+                    <a href="#" class="forgot-password">Forgot Password</a>
+                </div>
+
+                <button type="submit" class="btn-primary" id="submitBtn">Sign In</button>
+                <button type="button" class="btn-google">
+                    G | Sign in with Google
+                </button>
+            </form>
+
+            <p class="signup-link"><span id="toggleText">Don't have an account?</span> <a href="#" id="toggleModeBtn">Sign up</a></p>
+        </div>
+
+    </div>
+
+
+
+    <script>
+        const canvas = document.getElementById('rainCanvas');
+        const ctx = canvas.getContext('2d');
+        const rightPanel = document.querySelector('.right-panel');
+
+        canvas.style.zIndex = "5";
+
+        function resizeCanvas() {
+            canvas.width = rightPanel.clientWidth;
+            canvas.height = rightPanel.clientHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // 1. MOUSE TRACKING SYSTEM
+        let mouse = { x: -1000, y: -1000 }; // Default out of screen
+
+        rightPanel.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = e.clientX - rect.left;
+            mouse.y = e.clientY - rect.top;
+        });
+
+        // Mouse bahar jane par forcefield hata do
+        rightPanel.addEventListener('mouseleave', () => {
+            mouse.x = -1000;
+            mouse.y = -1000;
+        });
+
+        let drops = [];
+        let splashes = [];
+        const numDrops = 150;
+        const windAngle = 0.15;
+        let lightningOpacity = 0; // Lightning trigger
+
+        function createDrop() {
+            const z = Math.random();
+            return {
+                x: Math.random() * (canvas.width + 200) - 100,
+                y: Math.random() * canvas.height - canvas.height,
+                z: z,
+                len: z * 20 + 10,
+                velocity: z * 4 + 8,
+                opacity: z * 0.3 + 0.1,
+                thickness: z * 1.5 + 0.5
+            };
+        }
+
+        for (let i = 0; i < numDrops; i++) {
+            drops.push(createDrop());
+        }
+
+        function drawRain() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.lineCap = 'round';
+
+            // --- LIGHTNING EFFECT ---
+            if (Math.random() > 0.995) { // Bahut rare (0.5% chance per frame)
+                lightningOpacity = 0.15; // Flash trigger
+            }
+            if (lightningOpacity > 0) {
+                ctx.fillStyle = `rgba(174, 194, 255, ${lightningOpacity})`;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                lightningOpacity -= 0.01; // Fade out slowly
+            }
+
+            // --- RAIN RENDER & MOUSE PHYSICS ---
+            for (let i = 0; i < drops.length; i++) {
+                let d = drops[i];
+
+                // MOUSE FORCEFIELD LOGIC
+                let dx = d.x - mouse.x;
+                let dy = d.y - mouse.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                let forcefieldRadius = 120; // Kitni door se boond hateggi
+
+                if (distance < forcefieldRadius) {
+                    // Agar boond cursor ke paas hai, toh usko push karo
+                    let force = (forcefieldRadius - distance) / forcefieldRadius;
+                    d.x += (dx / distance) * force * 10; // X axis pe deflect
+                    d.y -= force * 2; // Halki si speed slow ho jayegi (umbrella effect)
+
+                    // Mouse par takrane wale extra splashes
+                    if (Math.random() > 0.8) {
+                        splashes.push({
+                            x: d.x, y: d.y, radius: 1, opacity: d.opacity, speed: d.thickness * 0.5
+                        });
+                    }
+                }
+
+                const endX = d.x + (d.len * Math.sin(windAngle));
+                const endY = d.y + (d.len * Math.cos(windAngle));
+
+                let grad = ctx.createLinearGradient(d.x, d.y, endX, endY);
+                grad.addColorStop(0, `rgba(174, 194, 224, 0)`);
+                grad.addColorStop(1, `rgba(174, 194, 224, ${d.opacity})`);
+
+                ctx.strokeStyle = grad;
+                ctx.lineWidth = d.thickness;
+
+                ctx.beginPath();
+                ctx.moveTo(d.x, d.y);
+                ctx.lineTo(endX, endY);
+                ctx.stroke();
+
+                d.y += d.velocity * Math.cos(windAngle);
+                d.x += d.velocity * Math.sin(windAngle);
+
+                if (d.y > canvas.height || d.x > canvas.width) {
+                    if (Math.random() > 0.4) {
+                        splashes.push({
+                            x: d.x,
+                            y: canvas.height - (Math.random() * 20),
+                            radius: 1, opacity: d.opacity, speed: d.thickness * 0.5
+                        });
+                    }
+                    Object.assign(d, createDrop());
+                    d.y = -d.len;
+                }
+            }
+
+            // --- SPLASHES RENDER ---
+            for (let i = splashes.length - 1; i >= 0; i--) {
+                let s = splashes[i];
+                ctx.beginPath();
+                ctx.ellipse(s.x, s.y, s.radius * 2, s.radius * 0.5, 0, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(174, 194, 224, ${s.opacity})`;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                s.radius += s.speed;
+                s.opacity -= 0.03;
+
+                if (s.opacity <= 0) {
+                    splashes.splice(i, 1);
+                }
+            }
+
+            requestAnimationFrame(drawRain);
+        }
+
+        drawRain();
+        // ==========================================
+        // 3. LEFT PANEL: TYPEWRITER EFFECT
+        // ==========================================
+        const typeElement = document.getElementById('typewriter-text');
+        // \n ka matlab hai line change (Jo pehle <br> karta tha)
+        const textToType = "EXPLORE.\nLEARN. GROW."; 
+        
+        let charIndex = 0;
+        let isDeleting = false;
+
+        function typeWriter() {
+            // Text ka hissa nikal kar HTML me dikhana
+            let currentText = textToType.substring(0, charIndex);
+            typeElement.textContent = currentText;
+
+            let typingSpeed = 120; // Type hone ki speed
+
+            if (!isDeleting && charIndex < textToType.length) {
+                // Agar type ho raha hai
+                charIndex++;
+                setTimeout(typeWriter, typingSpeed);
+            } 
+            else if (!isDeleting && charIndex === textToType.length) {
+                // Pura type hone ke baad 2 second ruko, fir mitana shuru karo
+                isDeleting = true;
+                setTimeout(typeWriter, 2000); 
+            } 
+            else if (isDeleting && charIndex > 0) {
+                // Agar mit raha hai (Erase speed thodi fast rakhi hai)
+                charIndex--;
+                typingSpeed = 50; 
+                setTimeout(typeWriter, typingSpeed);
+            } 
+            else if (isDeleting && charIndex === 0) {
+                // Pura mitne ke baad aadha second ruko, fir se type karo
+                isDeleting = false;
+                setTimeout(typeWriter, 500); 
+            }
+        }
+
+        // Effect ko start karo
+        typeWriter();
+
+        // ==========================================
+        // 4. BACKEND INTEGRATION & TOGGLE MODE
+        // ==========================================
+        let isSignupMode = false;
+        const toggleModeBtn = document.getElementById('toggleModeBtn');
+        const formTitle = document.getElementById('formTitle');
+        const formSubtitle = document.getElementById('formSubtitle');
+        const nameGroup = document.getElementById('nameGroup');
+        const formOptions = document.querySelector('.form-options');
+        const submitBtn = document.getElementById('submitBtn');
+        const toggleText = document.getElementById('toggleText');
+
+        toggleModeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            isSignupMode = !isSignupMode;
+
+            if (isSignupMode) {
+                formTitle.textContent = "CREATE ACCOUNT";
+                formSubtitle.textContent = "Sign up for a new PulseIQ account";
+                nameGroup.style.display = "block";
+                document.getElementById('name').required = true;
+                formOptions.style.display = "none";
+                submitBtn.textContent = "Sign Up";
+                toggleText.textContent = "Already have an account?";
+                toggleModeBtn.textContent = "Sign in";
+            } else {
+                formTitle.textContent = "WELCOME BACK";
+                formSubtitle.textContent = "Enter your email and password to access your account";
+                nameGroup.style.display = "none";
+                document.getElementById('name').required = false;
+                formOptions.style.display = "flex";
+                submitBtn.textContent = "Sign In";
+                toggleText.textContent = "Don't have an account?";
+                toggleModeBtn.textContent = "Sign up";
+            }
+        });
+
+        const loginForm = document.getElementById('loginForm');
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const name = document.getElementById('name').value;
+            const btn = submitBtn;
+            const originalText = btn.textContent;
+            
+            btn.textContent = isSignupMode ? 'Creating Account...' : 'Authenticating...';
+            btn.disabled = true;
+
+            try {
+                const url = isSignupMode ? 'http://localhost:8000/auth/register' : 'http://localhost:8000/auth/login';
+                
+                // For register, we generate a username from the email if not explicitly provided
+                const username = isSignupMode ? email.split('@')[0] + Math.floor(Math.random() * 1000) : email;
+
+                const payload = isSignupMode 
+                    ? { username: username, email: email, password: password, full_name: name }
+                    : { username: email, password: password };
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    if (isSignupMode) {
+                        alert("Account created successfully! Please sign in.");
+                        toggleModeBtn.click(); // Switch back to login view
+                        document.getElementById('password').value = ""; // Clear password
+                        btn.textContent = "Sign In";
+                        btn.disabled = false;
+                    } else {
+                        // Save token
+                        localStorage.setItem('pulseiq_token', data.token);
+                        localStorage.setItem('pulseiq_user', JSON.stringify({
+                            username: data.username,
+                            full_name: data.full_name
+                        }));
+                        
+                        btn.textContent = 'Success! Redirecting...';
+                        setTimeout(() => {
+                            window.location.href = '/dashboard';
+                        }, 1000);
+                    }
+                } else {
+                    alert(data.detail || data.error || (isSignupMode ? 'Registration failed' : 'Invalid credentials'));
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                console.error("Backend connection error:", err);
+                alert("Error connecting to server. Is the backend running?");
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>

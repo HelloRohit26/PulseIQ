@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PulseIQ - Sentiment Map</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&amp;family=Work+Sans:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-primary": "#006875",
+                        "tertiary": "#ffeac0",
+                        "secondary": "#d1bcff",
+                        "secondary-container": "#7000ff",
+                        "sentiment-neutral": "#94A3B8",
+                        "surface": "#161B22",
+                        "on-error-container": "#ffdad6",
+                        "on-tertiary-container": "#6f5500",
+                        "on-background": "#dce4e5",
+                        "on-secondary-container": "#ddcdff",
+                        "tertiary-container": "#fec931",
+                        "surface-container-low": "#151d1e",
+                        "on-secondary-fixed-variant": "#5700c9",
+                        "on-primary": "#00363d",
+                        "primary-fixed-dim": "#00daf3",
+                        "primary-container": "#00e5ff",
+                        "surface-container": "#192122",
+                        "surface-container-lowest": "#080f11",
+                        "accent-electric": "#00E5FF",
+                        "background": "#0B0E14",
+                        "surface-container-highest": "#2e3638",
+                        "primary-fixed": "#9cf0ff",
+                        "outline-variant": "#3b494c",
+                        "on-primary-fixed-variant": "#004f58",
+                        "surface-bright": "#333a3c",
+                        "on-primary-fixed": "#001f24",
+                        "on-tertiary-fixed": "#251a00",
+                        "surface-variant": "#2e3638",
+                        "sentiment-positive": "#22C55E",
+                        "inverse-surface": "#dce4e5",
+                        "sentiment-negative": "#EF4444",
+                        "error": "#ffb4ab",
+                        "on-primary-container": "#00626e",
+                        "on-error": "#690005",
+                        "error-container": "#93000a",
+                        "on-surface": "#dce4e5",
+                        "border-subtle": "#30363D",
+                        "inverse-on-surface": "#2a3233",
+                        "secondary-fixed": "#e9ddff",
+                        "outline": "#849396",
+                        "tertiary-fixed-dim": "#f3bf26",
+                        "secondary-fixed-dim": "#d1bcff",
+                        "surface-tint": "#00daf3",
+                        "primary": "#c3f5ff",
+                        "on-surface-variant": "#bac9cc",
+                        "surface-container-high": "#242b2d",
+                        "on-tertiary-fixed-variant": "#594400",
+                        "surface-dim": "#0d1516",
+                        "on-secondary": "#3c0090",
+                        "tertiary-fixed": "#ffdf96",
+                        "on-tertiary": "#3e2e00",
+                        "on-secondary-fixed": "#23005b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "card-padding": "20px",
+                        "container-margin": "24px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-xl": ["Space Grotesk"],
+                        "label-caps": ["Work Sans"],
+                        "body-md": ["Work Sans"],
+                        "ticker-data": ["Space Grotesk"],
+                        "chat-bubble": ["Work Sans"]
+                    },
+                    "fontSize": {
+                        "headline-xl": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "ticker-data": ["14px", {"lineHeight": "1", "fontWeight": "700"}],
+                        "chat-bubble": ["15px", {"lineHeight": "1.5", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .pulse-animation {
+            animation: pulse-glow 2s infinite alternate;
+        }
+        @keyframes pulse-glow {
+            from { text-shadow: 0 0 5px rgba(0, 229, 255, 0.5); }
+            to { text-shadow: 0 0 15px rgba(0, 229, 255, 1); }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen overflow-x-hidden selection:bg-accent-electric selection:text-background">
+<!-- TopAppBar -->
+<header class="fixed w-full top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border-subtle flex justify-between items-center px-container-margin py-4 hidden md:flex">
+<div class="flex items-center gap-8">
+<h1 class="font-headline-xl text-headline-xl font-bold text-accent-electric tracking-tight pulse-animation cursor-pointer">PulseIQ</h1>
+<nav class="flex gap-6">
+<a class="text-on-surface-variant font-medium hover:text-primary-fixed transition-colors duration-200" href="#">Intelligence</a>
+<a class="text-on-surface-variant font-medium hover:text-primary-fixed transition-colors duration-200" href="#">Markets</a>
+<a class="text-on-surface-variant font-medium hover:text-primary-fixed transition-colors duration-200" href="#">Signals</a>
+<a class="text-accent-electric font-bold border-b-2 border-accent-electric pb-1 hover:text-primary-fixed transition-colors duration-200" href="#">Analysis</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative w-64 mr-4 hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="w-full bg-surface-container-high border border-border-subtle rounded-DEFAULT py-1.5 pl-9 pr-3 text-sm focus:outline-none focus:border-accent-electric focus:ring-1 focus:ring-accent-electric text-on-surface transition-all placeholder:text-on-surface-variant/50" placeholder="Search markets, assets..." type="text"/>
+</div>
+<button class="text-primary-fixed-dim hover:text-primary-fixed transition-colors duration-200 hover:opacity-80 hover:scale-95 transition-all"><span class="material-symbols-outlined">sensors</span></button>
+<button class="text-primary-fixed-dim hover:text-primary-fixed transition-colors duration-200 hover:opacity-80 hover:scale-95 transition-all"><span class="material-symbols-outlined">notifications</span></button>
+<button class="text-primary-fixed-dim hover:text-primary-fixed transition-colors duration-200 hover:opacity-80 hover:scale-95 transition-all"><span class="material-symbols-outlined">account_circle</span></button>
+</div>
+</header>
+<!-- Main Layout Grid -->
+<div class="flex pt-[72px]">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-16 h-[calc(100vh-64px)] w-64 bg-surface border-r border-border-subtle hidden md:flex flex-col justify-between py-6 z-40">
+<div>
+<div class="px-4 mb-8 flex items-center gap-3">
+<img alt="PulseIQ AI Node" class="w-10 h-10 rounded-DEFAULT border border-border-subtle object-cover" data-alt="A highly stylized, minimalist icon representing an AI node in a deep cyber-sea aesthetic. The icon features glowing electric cyan geometric patterns against a dark, pitch-black background, evoking high-tech financial intelligence and neural networks." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzpcyK846eFsVdP4Ywm8Mj6fRNYGxPQfrqIV49688JhjU9Ex81mRgwvU9FEHQ6UpD1iyT6q7Vo5jB2jXWZ82CW4DnfJnd6_issi5Gw5_Uw9BOpQs6IenNQkEhRQTzj9nP5v15r4kRMpnnlTRcCmB0_lxmhDHFR2WrjpKYcapnp5t4GB2I6MeE9WhCQz1mCXvJl2bYqlWM0_lEecucK_BzcZQG3uPwkhuK4RWXRXiezyUtOJgpY--pCPdYaN17cBzDEoQBULMxQdz2l"/>
+<div>
+<h2 class="text-on-surface font-ticker-data text-ticker-data">AI Terminal</h2>
+<p class="text-accent-electric text-xs opacity-80">Gemini Ultra Active</p>
+</div>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-variant hover:text-on-surface transition-all hover:translate-x-1 duration-200 font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined text-lg">smart_toy</span> Deep Pulse Chat
+                    </a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-variant hover:text-on-surface transition-all hover:translate-x-1 duration-200 font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined text-lg">filter_list</span> Sector Filters
+                    </a>
+<a class="flex items-center gap-3 bg-secondary-container/20 text-accent-electric border-r-4 border-accent-electric px-4 py-3 hover:bg-surface-variant transition-all hover:translate-x-1 duration-200 font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined text-lg">analytics</span> Sentiment Map
+                    </a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-variant hover:text-on-surface transition-all hover:translate-x-1 duration-200 font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined text-lg">history</span> Historical
+                    </a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-variant hover:text-on-surface transition-all hover:translate-x-1 duration-200 font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined text-lg">code</span> API Terminal
+                    </a>
+</nav>
+</div>
+<div class="px-4">
+<button class="w-full bg-accent-electric text-background font-ticker-data text-ticker-data py-2.5 rounded-DEFAULT hover:opacity-90 transition-opacity">New Investigation</button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 p-container-margin min-h-[calc(100vh-72px)]">
+<!-- Dashboard Header & Filters -->
+<div class="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-6 gap-4">
+<div>
+<h2 class="font-headline-xl text-headline-xl mb-1">Global Sentiment Map</h2>
+<p class="text-on-surface-variant text-sm">Real-time macro analysis across global asset classes.</p>
+</div>
+<div class="flex flex-wrap gap-3">
+<select class="bg-surface border border-border-subtle rounded-DEFAULT text-sm py-1.5 pl-3 pr-8 focus:ring-accent-electric focus:border-accent-electric text-on-surface">
+<option>All Assets</option>
+<option>Equities</option>
+<option>Crypto</option>
+<option>Forex</option>
+</select>
+<select class="bg-surface border border-border-subtle rounded-DEFAULT text-sm py-1.5 pl-3 pr-8 focus:ring-accent-electric focus:border-accent-electric text-on-surface">
+<option>24H Horizon</option>
+<option>7D Horizon</option>
+<option>30D Horizon</option>
+</select>
+<button class="flex items-center gap-2 border border-border-subtle bg-surface hover:border-accent-electric text-sm py-1.5 px-3 rounded-DEFAULT transition-colors">
+<span class="material-symbols-outlined text-[18px]">tune</span> Filters
+                    </button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-base h-full auto-rows-min">
+<!-- Large Map Visualization -->
+<div class="lg:col-span-8 bg-surface border border-border-subtle rounded-lg p-card-padding relative overflow-hidden flex flex-col min-h-[400px] lg:min-h-[500px]">
+<div class="flex justify-between items-center mb-4 z-10">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant">Macro Sentiment Heatmap</h3>
+<div class="flex gap-2 items-center text-xs">
+<span class="w-3 h-3 rounded-full bg-sentiment-negative"></span> Bearish
+                            <span class="w-3 h-3 rounded-full bg-sentiment-neutral ml-2"></span> Neutral
+                            <span class="w-3 h-3 rounded-full bg-sentiment-positive ml-2"></span> Bullish
+                        </div>
+</div>
+<!-- Abstract Map Representation (Using Gradient/Image for fidelity) -->
+<div class="flex-1 relative rounded-DEFAULT overflow-hidden border border-border-subtle/50">
+<div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&amp;w=1200&amp;auto=format&amp;fit=crop')] bg-cover bg-center opacity-30 mix-blend-luminosity" data-alt="A highly abstract, dark-mode data visualization representing a global map or complex treemap. The visual is dominated by deep oceanic blues and blacks, punctuated by intense, glowing nodes of electric cyan, vibrant green (positive sentiment), and sharp red (negative sentiment). It looks like a high-tech financial terminal interface."></div>
+<div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
+<!-- Simulated interactive nodes -->
+<div class="absolute top-[30%] left-[20%] w-24 h-24 bg-sentiment-positive/20 border border-sentiment-positive/50 rounded-full flex items-center justify-center animate-pulse">
+<div class="text-center">
+<p class="font-ticker-data text-ticker-data text-sentiment-positive">NA Equities</p>
+<p class="text-xs">+2.4%</p>
+</div>
+</div>
+<div class="absolute top-[50%] left-[60%] w-32 h-32 bg-sentiment-negative/20 border border-sentiment-negative/50 rounded-full flex items-center justify-center">
+<div class="text-center">
+<p class="font-ticker-data text-ticker-data text-sentiment-negative">EU Energy</p>
+<p class="text-xs">-1.8%</p>
+</div>
+</div>
+<div class="absolute top-[70%] left-[40%] w-20 h-20 bg-accent-electric/20 border border-accent-electric/50 rounded-full flex items-center justify-center pulse-animation">
+<div class="text-center">
+<p class="font-ticker-data text-ticker-data text-accent-electric">Crypto</p>
+<p class="text-xs">+5.1%</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Sidebar Stack -->
+<div class="lg:col-span-4 flex flex-col gap-base">
+<!-- Top Sentiment Drivers -->
+<div class="bg-surface border border-border-subtle rounded-lg p-card-padding flex-1">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-4">Top Sentiment Drivers</h3>
+<div class="space-y-3">
+<div class="flex items-center justify-between p-2 rounded-DEFAULT bg-surface-variant/50 border border-border-subtle hover:border-accent-electric/50 transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-sentiment-positive text-[20px]">trending_up</span>
+<div>
+<p class="font-ticker-data text-ticker-data text-sm">Fed Rate Pause</p>
+<p class="text-xs text-on-surface-variant">Macro Event</p>
+</div>
+</div>
+<span class="bg-sentiment-positive/10 text-sentiment-positive text-xs px-2 py-0.5 rounded-full border border-sentiment-positive/20">High Impact</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded-DEFAULT bg-surface-variant/50 border border-border-subtle hover:border-accent-electric/50 transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-sentiment-negative text-[20px]">trending_down</span>
+<div>
+<p class="font-ticker-data text-ticker-data text-sm">Tech Earnings Miss</p>
+<p class="text-xs text-on-surface-variant">Corporate</p>
+</div>
+</div>
+<span class="bg-sentiment-negative/10 text-sentiment-negative text-xs px-2 py-0.5 rounded-full border border-sentiment-negative/20">Med Impact</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded-DEFAULT bg-surface-variant/50 border border-border-subtle hover:border-accent-electric/50 transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-accent-electric text-[20px]">bolt</span>
+<div>
+<p class="font-ticker-data text-ticker-data text-sm">AI Regulation Bill</p>
+<p class="text-xs text-on-surface-variant">Policy</p>
+</div>
+</div>
+<span class="bg-accent-electric/10 text-accent-electric text-xs px-2 py-0.5 rounded-full border border-accent-electric/20">High Vol</span>
+</div>
+</div>
+</div>
+<!-- Sentiment Over Time Chart Placeholder -->
+<div class="bg-surface border border-border-subtle rounded-lg p-card-padding h-48 flex flex-col">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-2">Sentiment Over Time (7D)</h3>
+<div class="flex-1 relative flex items-end w-full gap-1 pt-4">
+<!-- Simulated Line Chart via CSS -->
+<div class="absolute bottom-0 left-0 w-full h-[2px] bg-border-subtle"></div>
+<div class="absolute bottom-0 left-0 w-[20%] h-full flex items-end">
+<div class="w-full h-[40%] border-t-2 border-sentiment-neutral bg-gradient-to-t from-sentiment-neutral/20 to-transparent"></div>
+</div>
+<div class="absolute bottom-0 left-[20%] w-[30%] h-full flex items-end">
+<div class="w-full h-[70%] border-t-2 border-sentiment-positive bg-gradient-to-t from-sentiment-positive/20 to-transparent relative -left-[1px]"></div>
+</div>
+<div class="absolute bottom-0 left-[50%] w-[25%] h-full flex items-end">
+<div class="w-full h-[30%] border-t-2 border-sentiment-negative bg-gradient-to-t from-sentiment-negative/20 to-transparent relative -left-[2px]"></div>
+</div>
+<div class="absolute bottom-0 left-[75%] w-[25%] h-full flex items-end">
+<div class="w-full h-[85%] border-t-2 border-accent-electric bg-gradient-to-t from-accent-electric/20 to-transparent relative -left-[3px]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Footer -->
+<footer class="w-full bg-surface-container-lowest border-t border-border-subtle px-container-margin py-8 flex flex-col md:flex-row justify-between items-center gap-4 relative z-50">
+<div class="text-on-surface font-bold font-ticker-data text-ticker-data">PulseIQ</div>
+<p class="text-accent-electric font-ticker-data text-ticker-data text-xs">© 2024 PulseIQ Intelligence. All systems operational.</p>
+<div class="flex gap-6 text-sm">
+<a class="text-outline hover:text-accent-electric underline underline-offset-4 hover:opacity-100 transition-opacity" href="#">Kafka Architecture</a>
+<a class="text-outline hover:text-accent-electric underline underline-offset-4 hover:opacity-100 transition-opacity" href="#">Gemini Pro Docs</a>
+<a class="text-outline hover:text-accent-electric underline underline-offset-4 hover:opacity-100 transition-opacity" href="#">System Status</a>
+<a class="text-outline hover:text-accent-electric underline underline-offset-4 hover:opacity-100 transition-opacity" href="#">Security Compliance</a>
+</div>
+</footer>
+</body></html>
