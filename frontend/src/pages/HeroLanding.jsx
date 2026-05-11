@@ -57,14 +57,7 @@ export default function HeroLanding() {
         </p>
 
         {/* --- BUTTONS --- */}
-        <div className="flex flex-col sm:flex-row items-center gap-5 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-          <Link
-            to="/architecture"
-            className="flex items-center justify-center gap-2 px-8 py-3.5 rounded-full border border-white/20 bg-[#0B0E14]/50 backdrop-blur-md text-white font-medium hover:bg-white/10 transition-colors w-full sm:w-auto"
-          >
-            <span className="material-symbols-outlined text-[20px]">play_circle</span>
-            Watch Demo
-          </Link>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-5 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
           <a
             href="/login/index.html"
             className="flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-[#2563EB] text-white font-medium hover:bg-[#3B82F6] transition-all duration-300 shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:shadow-[0_0_30px_rgba(37,99,235,0.6)] w-full sm:w-auto"

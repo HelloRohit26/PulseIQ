@@ -63,7 +63,7 @@ def get_db_connection():
 
 # --- 3. API ENDPOINTS ---
 
-@app.get("/api")
+@app.get("/api/")
 def read_root():
     return {"message": "Welcome to the PulseIQ API Backend!"}
 
