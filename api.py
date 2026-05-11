@@ -44,7 +44,7 @@ def startup_event():
 embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 chroma_client = chromadb.PersistentClient(path="./chroma_data")
 vector_store = Chroma(client=chroma_client, collection_name="pulseiq_news", embedding_function=embeddings)
-llm = ChatGoogleGenerativeAI(model="gemini-3-flash-preview", temperature=0.3)
+llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.3)
 
 system_prompt = (
     "You are PulseIQ, an advanced real-time financial news AI. "
