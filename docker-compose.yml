@@ -64,12 +64,13 @@ services:
       - postgres
       - consumer
     
-  # --- 6. THE STREAMLIT DASHBOARD ---
-  dashboard:
-    build: .
-    command: streamlit run dashboard.py --server.address=0.0.0.0
+  # --- 6. THE REACT FRONTEND ---
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
-      - "8501:8501"
+      - "8501:80"
     depends_on:
       - api
 
