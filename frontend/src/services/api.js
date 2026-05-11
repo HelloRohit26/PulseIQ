@@ -45,11 +45,12 @@ export async function queryPulseIQ(question) {
     const data = await res.json();
     return data;
   } catch (err) {
-    console.warn('Query API unavailable:', err.message);
+    const errorMsg = err.message || 'Unknown error';
+    console.warn('Query API unavailable:', errorMsg);
     backendOnline = false;
     return {
       question,
-      answer: `**PulseIQ Analysis (Demo Mode)**\n\nI'm currently running in demo mode as the backend is offline. When connected to the live Kafka pipeline, I would analyze real-time news data to answer: "${question}"\n\nIn production, I use Gemini AI with ChromaDB vector search to provide intelligent, source-cited answers from live financial news streams.\n\n**To connect the backend:**\n1. Open Docker Desktop\n2. Run \`docker-compose up -d --build\` in the project root\n3. Wait for all services to become healthy\n4. The frontend will auto-connect via the Vite proxy`,
+      answer: `**Error Connecting to PulseIQ AI**\n\nThe backend returned an error: \`${errorMsg}\`. \n\nThis usually means the AI model is still loading or the API key is missing. Please check the server logs.`,
     };
   }
 }

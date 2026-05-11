@@ -17,8 +17,8 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_classic.chains.combine_documents import create_stuff_documents_chain
-from langchain_classic.chains import create_retrieval_chain
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain.chains import create_retrieval_chain
 import chromadb
 
 load_dotenv(override=True)
@@ -104,6 +104,7 @@ def ask_pulseiq(request: QueryRequest):
         response = rag_chain.invoke({"input": request.question})
         return {"question": request.question, "answer": response["answer"]}
     except Exception as e:
+        print(f"ERROR in ask_pulseiq: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # --- AUTH ENDPOINTS ---
