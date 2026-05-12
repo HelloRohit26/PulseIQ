@@ -31,7 +31,7 @@ vector_store = Chroma(
 )
 
 # --- 3. INITIALIZE GEMINI ---
-llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.3)
+llm = ChatGoogleGenerativeAI(model="gemini-3-flash-preview", temperature=0.3)
 
 # --- 4. BUILD THE RAG PROMPT ---
 system_prompt = (
