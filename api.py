@@ -54,10 +54,16 @@ try:
         from langchain.chains import create_retrieval_chain
         print("📦 Using langchain for chains")
 
+    # Get API key - check both env var names
+    api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise ValueError("No GOOGLE_API_KEY or GEMINI_API_KEY found in environment!")
+    print(f"🔑 API key found (starts with: {api_key[:8]}...)")
+
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
     chroma_client = chromadb.PersistentClient(path="./chroma_data")
     vector_store = Chroma(client=chroma_client, collection_name="pulseiq_news", embedding_function=embeddings)
-    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.3)
+    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.3, google_api_key=api_key)
 
     system_prompt = (
         "You are PulseIQ, an advanced real-time financial news AI. "
@@ -72,6 +78,8 @@ try:
     print("✅ AI RAG chain initialized successfully!")
 except Exception as e:
     print(f"⚠️ AI initialization failed (API will still serve basic endpoints): {e}")
+    import traceback
+    traceback.print_exc()
     rag_chain = None
 
 
@@ -130,13 +138,15 @@ class QueryRequest(BaseModel):
 def ask_pulseiq(request: QueryRequest):
     """Hits the Gemini + ChromaDB RAG pipeline."""
     if rag_chain is None:
-        raise HTTPException(status_code=503, detail="AI engine is still initializing. Please try again in a moment.")
+        raise HTTPException(status_code=503, detail="AI engine is not available. Check server logs for initialization errors.")
     try:
         response = rag_chain.invoke({"input": request.question})
         return {"question": request.question, "answer": response["answer"]}
     except Exception as e:
+        import traceback
         print(f"ERROR in ask_pulseiq: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"AI query failed: {str(e)}")
 
 # --- AUTH ENDPOINTS ---
 @app.post("/api/auth/register")

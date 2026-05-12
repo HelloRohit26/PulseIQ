@@ -40,14 +40,18 @@ export async function queryPulseIQ(question) {
       body: JSON.stringify({ question }),
       signal: AbortSignal.timeout(30000),
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) {
+      // Read actual error detail from API response
+      const errData = await res.json().catch(() => ({}));
+      const detail = errData.detail || `HTTP ${res.status}`;
+      throw new Error(detail);
+    }
     backendOnline = true;
     const data = await res.json();
     return data;
   } catch (err) {
     const errorMsg = err.message || 'Unknown error';
     console.warn('Query API unavailable:', errorMsg);
-    backendOnline = false;
     return {
       question,
       answer: `**Error Connecting to PulseIQ AI**\n\nThe backend returned an error: \`${errorMsg}\`. \n\nThis usually means the AI model is still loading or the API key is missing. Please check the server logs.`,
