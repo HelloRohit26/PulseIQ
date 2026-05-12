@@ -30,23 +30,32 @@ def get_db_connection():
 
 
 def init_users_table():
-    """Create the users table if it doesn't exist."""
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            username VARCHAR(50) UNIQUE NOT NULL,
-            email VARCHAR(120) UNIQUE NOT NULL,
-            password_hash VARCHAR(256) NOT NULL,
-            full_name VARCHAR(100),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            last_login TIMESTAMP
-        );
-    """)
-    conn.commit()
-    cur.close()
-    conn.close()
+    """Create the users table if it doesn't exist. Retries on connection failure."""
+    import time
+    for attempt in range(5):
+        try:
+            conn = get_db_connection()
+            cur = conn.cursor()
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id SERIAL PRIMARY KEY,
+                    username VARCHAR(50) UNIQUE NOT NULL,
+                    email VARCHAR(120) UNIQUE NOT NULL,
+                    password_hash VARCHAR(256) NOT NULL,
+                    full_name VARCHAR(100),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    last_login TIMESTAMP
+                );
+            """)
+            conn.commit()
+            cur.close()
+            conn.close()
+            print("✅ Users table ready!")
+            return
+        except Exception as e:
+            print(f"⏳ DB not ready for users table (attempt {attempt+1}/5): {e}")
+            time.sleep(3)
+    print("⚠️ Could not create users table after 5 attempts")
 
 
 # --- PASSWORD HASHING (using hashlib — no extra dependency needed) ---

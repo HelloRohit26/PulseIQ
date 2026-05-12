@@ -6,7 +6,6 @@ transformers
 torch
 chromadb
 langchain
-langchain-classic
 langchain-google-genai
 langchain-chroma
 langchain-huggingface
@@ -15,6 +14,4 @@ fastapi
 uvicorn
 scikit-learn
 pandas
-streamlit
-plotly
-python-dotenv
+python-dotenv
