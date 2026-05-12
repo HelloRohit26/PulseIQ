@@ -36,17 +36,54 @@ jobs:
         host: ${{ secrets.AWS_HOST }}
         username: ${{ secrets.AWS_USERNAME }}
         key: ${{ secrets.AWS_SSH_KEY }}
+        command_timeout: 30m
         script: |
           cd /home/ubuntu/PulseIQ
+          
+          # Show .env is present (without revealing values)
+          echo "=== .env file check ==="
+          wc -l .env
+          cat .env | cut -d'=' -f1
+          
           # Shut down the old version cleanly
           sudo docker-compose down --remove-orphans
           # Only prune unused images (NOT volumes — that destroys the database!)
           sudo docker image prune -a -f
           
+          # Check system resources
+          echo "=== SYSTEM RESOURCES ==="
+          free -h
+          df -h /
+          
           # Build and launch the new version
           sudo docker-compose up --build -d
           
-          # Wait and check if API is healthy
-          sleep 30
+          # Wait for containers to stabilize
+          echo "=== Waiting 90 seconds for containers to start ==="
+          sleep 90
+          
+          # Full diagnostics
+          echo "=== DOCKER COMPOSE STATUS ==="
           sudo docker-compose ps
-          sudo docker-compose logs --tail=50 api
+          
+          echo "=== API CONTAINER LOGS ==="
+          sudo docker-compose logs --tail=100 api
+          
+          echo "=== FRONTEND CONTAINER LOGS ==="
+          sudo docker-compose logs --tail=30 frontend
+          
+          echo "=== POSTGRES CONTAINER LOGS ==="
+          sudo docker-compose logs --tail=20 postgres
+          
+          echo "=== CONSUMER CONTAINER LOGS ==="
+          sudo docker-compose logs --tail=20 consumer
+          
+          echo "=== DOCKER SYSTEM INFO ==="
+          sudo docker stats --no-stream
+          
+          echo "=== CONTAINER RESTART COUNTS ==="
+          sudo docker inspect $(sudo docker-compose ps -q api) --format='{{.RestartCount}}' 2>/dev/null || echo "API container not found"
+          
+          echo "=== TESTING API ENDPOINT ==="
+          curl -s http://localhost:8000/api/ || echo "API NOT RESPONDING on port 8000"
+          curl -s http://localhost:8000/api/health || echo "HEALTH CHECK FAILED"
