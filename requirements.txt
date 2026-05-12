@@ -6,6 +6,7 @@ transformers
 torch
 chromadb
 langchain
+langchain-classic
 langchain-google-genai
 langchain-chroma
 langchain-huggingface

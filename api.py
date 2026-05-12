@@ -10,17 +10,6 @@ from dotenv import load_dotenv
 # Auth module
 from auth import init_users_table, register_user, login_user, verify_token
 
-# Import your RAG chain from the script you just built!
-# (We need to slightly modify query.py later to make it importable, 
-# but for now, we will rebuild a lightweight version of the query here)
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_chroma import Chroma
-from langchain_core.prompts import ChatPromptTemplate
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain.chains import create_retrieval_chain
-import chromadb
-
 load_dotenv(override=True)
 
 # --- 1. INITIALIZE API & AI ---
@@ -44,10 +33,27 @@ def startup_event():
     except Exception as e:
         print(f"⚠️ Could not initialize users table (DB may not be ready): {e}")
 
-# Setup AI (Just like in Step 9)
-# Wrap in try/except so the API container doesn't crash if AI init fails
+# Setup AI — ALL langchain imports are inside try/except so the API
+# can still start even if langchain packages are missing or incompatible.
 rag_chain = None
+vector_store = None
 try:
+    from langchain_google_genai import ChatGoogleGenerativeAI
+    from langchain_huggingface import HuggingFaceEmbeddings
+    from langchain_chroma import Chroma
+    from langchain_core.prompts import ChatPromptTemplate
+    import chromadb
+
+    # LangChain v1.0+ moved chains to langchain-classic package
+    try:
+        from langchain_classic.chains.combine_documents import create_stuff_documents_chain
+        from langchain_classic.chains import create_retrieval_chain
+        print("📦 Using langchain-classic for chains")
+    except ImportError:
+        from langchain.chains.combine_documents import create_stuff_documents_chain
+        from langchain.chains import create_retrieval_chain
+        print("📦 Using langchain for chains")
+
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
     chroma_client = chromadb.PersistentClient(path="./chroma_data")
     vector_store = Chroma(client=chroma_client, collection_name="pulseiq_news", embedding_function=embeddings)
@@ -65,8 +71,9 @@ try:
     rag_chain = create_retrieval_chain(retriever, question_answer_chain)
     print("✅ AI RAG chain initialized successfully!")
 except Exception as e:
-    print(f"⚠️ AI initialization failed (will retry on first query): {e}")
+    print(f"⚠️ AI initialization failed (API will still serve basic endpoints): {e}")
     rag_chain = None
+
 
 
 # --- 2. DATABASE HELPER ---
