@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 const navItems = [
   { icon: 'newspaper', label: 'Daily Pulse', path: '/newspaper' },
   { icon: 'smart_toy', label: 'Deep Pulse Chat', path: '/chat' },
-  { icon: 'filter_list', label: 'Sector Filters', path: '/dashboard' },
+  { icon: 'filter_list', label: 'Sector Filters', path: '/sentiment' },
   { icon: 'analytics', label: 'Sentiment Map', path: '/map' },
   { icon: 'hub', label: 'Threat Web', path: '/threat-web' },
   { icon: 'history', label: 'Historical', path: '/historical' },
