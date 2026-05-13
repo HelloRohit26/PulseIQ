@@ -12,6 +12,8 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    min-height: 100dvh;
+    padding: 16px;
 }
 
 .login-container {
@@ -35,7 +37,7 @@ body {
         inset -5px -5px 15px rgba(0, 0, 0, 0.5); /* Andar ki motai (thickness) */
         
     width: 900px;
-    max-width: 95%;
+    max-width: 100%;
     overflow: hidden;
     backdrop-filter: blur(15px); /* Background ko aur thoda blur karega */
     
@@ -251,6 +253,7 @@ h2 {
     outline: none;
     transition: all 0.3s ease;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 16px; /* Prevents iOS zoom on focus */
 }
 
 /* Jab input par click karoge (Neon Border & Pulse) */
@@ -387,4 +390,225 @@ spline-viewer::part(logo) {
     /* Bahut zaroori: Isse form click hone mein koi problem nahi hogi */
     z-index: 0;
     /* Background nebula ke upar, text ke piche */
+}
+
+
+/* ============================================ */
+/* ========= MOBILE RESPONSIVENESS =========== */
+/* ============================================ */
+
+/* Tablets and smaller desktops */
+@media (max-width: 900px) {
+    .login-container {
+        width: 100%;
+        max-width: 480px;
+        flex-direction: column;
+        border-radius: 16px;
+    }
+
+    /* Hide the left panel completely on mobile - it's too heavy */
+    .left-panel {
+        display: none;
+    }
+
+    .right-panel {
+        padding: 40px 30px;
+        min-height: 100%;
+        border-radius: 16px;
+    }
+
+    .logo {
+        font-size: 1.4rem;
+        margin-bottom: 16px;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+    }
+
+    .subtitle {
+        font-size: 0.82rem;
+        margin-bottom: 24px;
+    }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+    body {
+        padding: 12px;
+        align-items: flex-start;
+        padding-top: 24px;
+    }
+
+    .login-container {
+        max-width: 100%;
+        border-radius: 14px;
+        box-shadow: 
+            0 20px 40px rgba(0, 0, 0, 0.6),
+            inset 1px 1px 6px rgba(255, 255, 255, 0.08),
+            inset -3px -3px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .login-container:hover {
+        transform: none;
+        box-shadow: 
+            0 20px 40px rgba(0, 0, 0, 0.6),
+            inset 1px 1px 6px rgba(255, 255, 255, 0.08),
+            inset -3px -3px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .right-panel {
+        padding: 32px 20px;
+    }
+
+    /* Reduce nebula intensity on mobile for performance */
+    .right-panel::before,
+    .right-panel::after {
+        filter: blur(40px);
+        opacity: 0.4;
+    }
+
+    .logo {
+        font-size: 1.2rem;
+        margin-bottom: 12px;
+    }
+
+    h2 {
+        font-size: 1.3rem;
+        margin-bottom: 6px;
+    }
+
+    .subtitle {
+        font-size: 0.78rem;
+        margin-bottom: 20px;
+        line-height: 1.4;
+    }
+
+    .input-group {
+        margin-bottom: 12px;
+    }
+
+    .input-group label {
+        font-size: 0.72rem;
+        margin-bottom: 5px;
+        letter-spacing: 0.8px;
+    }
+
+    .input-group input {
+        padding: 12px;
+        border-radius: 6px;
+        font-size: 16px; /* Must be 16px to prevent iOS zoom */
+    }
+
+    .form-options {
+        font-size: 0.78rem;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .btn-primary {
+        padding: 13px;
+        font-size: 0.9rem;
+        letter-spacing: 1.5px;
+        margin-bottom: 12px;
+        border-radius: 6px;
+    }
+
+    .btn-google {
+        padding: 12px;
+        font-size: 0.85rem;
+        border-radius: 6px;
+    }
+
+    .signup-link {
+        margin-top: 16px;
+        font-size: 0.82rem;
+    }
+}
+
+/* Very small phones (iPhone SE, etc.) */
+@media (max-width: 360px) {
+    body {
+        padding: 8px;
+        padding-top: 16px;
+    }
+
+    .right-panel {
+        padding: 24px 16px;
+    }
+
+    h2 {
+        font-size: 1.15rem;
+    }
+
+    .subtitle {
+        font-size: 0.72rem;
+        margin-bottom: 16px;
+    }
+
+    .input-group input {
+        padding: 10px 12px;
+    }
+
+    .btn-primary,
+    .btn-google {
+        padding: 11px;
+    }
+}
+
+/* Landscape mode on phones */
+@media (max-height: 500px) and (orientation: landscape) {
+    body {
+        align-items: flex-start;
+        padding: 8px;
+    }
+
+    .login-container {
+        max-width: 400px;
+    }
+
+    .right-panel {
+        padding: 20px 24px;
+    }
+
+    .logo {
+        margin-bottom: 8px;
+    }
+
+    h2 {
+        font-size: 1.2rem;
+        margin-bottom: 4px;
+    }
+
+    .subtitle {
+        font-size: 0.75rem;
+        margin-bottom: 12px;
+    }
+
+    .input-group {
+        margin-bottom: 8px;
+    }
+
+    .input-group input {
+        padding: 8px 10px;
+    }
+
+    .form-options {
+        margin-bottom: 12px;
+    }
+
+    .btn-primary {
+        padding: 10px;
+        margin-bottom: 8px;
+    }
+
+    .btn-google {
+        padding: 8px;
+    }
+
+    .signup-link {
+        margin-top: 10px;
+    }
 }
