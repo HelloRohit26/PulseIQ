@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { useTheme } from '../ThemeContext';
 
 export default function HeroLanding() {
   // Live Dashboard Simulation State
@@ -15,9 +16,11 @@ export default function HeroLanding() {
     }, 200);
     return () => clearInterval(interval);
   }, []);
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   return (
-    <div className="relative min-h-screen w-full bg-[#050B14] overflow-hidden flex flex-col items-center pt-20 sm:pt-32 font-body selection:bg-blue-500/30 text-white">
+    <div className={`relative min-h-screen w-full overflow-hidden flex flex-col items-center pt-20 sm:pt-32 font-body selection:bg-blue-500/30 ${isDark ? 'bg-[#050B14] text-white' : 'bg-[#EEF2F7] text-[#1A1D23]'}`}>
       
       {/* --- BACKGROUND EFFECTS --- */}
       
@@ -35,13 +38,13 @@ export default function HeroLanding() {
       <main className="relative z-10 flex flex-col items-center w-full max-w-[1200px] px-4 sm:px-6 mt-8 sm:mt-16">
 
         {/* --- HEADLINE --- */}
-        <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-[5.5rem] font-bold text-center leading-[1.1] tracking-tight text-white mb-4 sm:mb-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+        <h1 className={`text-3xl sm:text-5xl md:text-7xl lg:text-[5.5rem] font-bold text-center leading-[1.1] tracking-tight mb-4 sm:mb-6 animate-fade-in-up ${isDark ? 'text-white' : 'text-[#1A1D23]'}`} style={{ animationDelay: '0.1s' }}>
           High-performing market analysis.<br/>
-          <span className="text-white/80 font-medium">The future of trading.</span>
+          <span className={`font-medium ${isDark ? 'text-white/80' : 'text-[#44505A]'}`}>The future of trading.</span>
         </h1>
 
         {/* --- SUBTITLE --- */}
-        <p className="text-[14px] sm:text-[17px] md:text-[20px] text-white/50 text-center max-w-[700px] leading-relaxed mb-8 sm:mb-10 font-light animate-fade-in-up px-2" style={{ animationDelay: '0.2s' }}>
+        <p className={`text-[14px] sm:text-[17px] md:text-[20px] text-center max-w-[700px] leading-relaxed mb-8 sm:mb-10 font-light animate-fade-in-up px-2 ${isDark ? 'text-white/50' : 'text-[#64748B]'}`} style={{ animationDelay: '0.2s' }}>
           Powerful, AI-driven sentiment tools and analytics. Supercharge your portfolio & stay ahead of global markets from anywhere.
         </p>
 
@@ -57,7 +60,7 @@ export default function HeroLanding() {
 
         {/* --- TRUSTED BY --- */}
         <div className="mt-12 sm:mt-20 flex flex-col items-center animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-          <p className="text-[12px] text-white/40 uppercase tracking-widest font-semibold mb-8">Trusted by 500+ hedge funds</p>
+          <p className={`text-[12px] uppercase tracking-widest font-semibold mb-8 ${isDark ? 'text-white/40' : 'text-[#64748B]'}`}>Trusted by 500+ hedge funds</p>
           <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16 opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
             <div className="flex items-center gap-2 text-xl font-bold font-headline"><span className="material-symbols-outlined text-[28px]">token</span> Boltshift</div>
             <div className="flex items-center gap-2 text-xl font-bold font-headline"><span className="material-symbols-outlined text-[28px]">deployed_code</span> Lightbox</div>
@@ -71,14 +74,14 @@ export default function HeroLanding() {
           {/* Blue glow behind dashboard */}
           <div className="absolute -inset-4 bg-gradient-to-t from-blue-600/30 to-transparent blur-3xl rounded-t-full z-0"></div>
           
-          <div className="relative z-10 w-full h-[280px] sm:h-[400px] bg-[#0A0A0A]/90 backdrop-blur-xl rounded-t-2xl border-t border-x border-white/10 shadow-[0_-30px_60px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col transform perspective-1000 rotate-x-[2deg]">
+          <div className={`relative z-10 w-full h-[280px] sm:h-[400px] backdrop-blur-xl rounded-t-2xl border-t border-x shadow-[0_-30px_60px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col transform perspective-1000 rotate-x-[2deg] ${isDark ? 'bg-[#0A0A0A]/90 border-white/10' : 'bg-white/90 border-[#D8DCE3]'}`}>
             
             {/* Browser Header */}
-            <div className="h-12 w-full bg-[#1A1A1A] border-b border-white/5 flex items-center px-5 gap-2">
+            <div className={`h-12 w-full border-b flex items-center px-5 gap-2 ${isDark ? 'bg-[#1A1A1A] border-white/5' : 'bg-[#F5F7FA] border-[#E4E8EE]'}`}>
               <div className="w-3 h-3 rounded-full bg-[#FF5F56]"></div>
               <div className="w-3 h-3 rounded-full bg-[#FFBD2E]"></div>
               <div className="w-3 h-3 rounded-full bg-[#27C93F]"></div>
-              <div className="mx-auto px-6 py-1.5 rounded-md bg-black/40 border border-white/5 text-[11px] text-white/30 tracking-widest uppercase font-semibold">PulseIQ Terminal</div>
+              <div className={`mx-auto px-6 py-1.5 rounded-md border text-[11px] tracking-widest uppercase font-semibold ${isDark ? 'bg-black/40 border-white/5 text-white/30' : 'bg-[#E4E8EE] border-[#D8DCE3] text-[#64748B]'}`}>PulseIQ Terminal</div>
             </div>
             
             {/* Fake Content (Live Graph) */}
@@ -87,8 +90,8 @@ export default function HeroLanding() {
               
               <div className="flex justify-between items-end mb-4 sm:mb-8 relative z-10">
                 <div>
-                  <h3 className="text-lg sm:text-2xl font-bold text-white mb-1 sm:mb-2 tracking-tight">Global Sentiment Heatmap</h3>
-                  <p className="text-xs sm:text-sm text-white/40 font-medium">Real-time analysis of 12,400+ active streams</p>
+                  <h3 className={`text-lg sm:text-2xl font-bold mb-1 sm:mb-2 tracking-tight ${isDark ? 'text-white' : 'text-[#1A1D23]'}`}>Global Sentiment Heatmap</h3>
+                  <p className={`text-xs sm:text-sm font-medium ${isDark ? 'text-white/40' : 'text-[#64748B]'}`}>Real-time analysis of 12,400+ active streams</p>
                 </div>
                 <div className="flex gap-3">
                   <div className="px-4 py-2 rounded-lg bg-blue-600/20 border border-blue-500/30 text-blue-400 text-xs font-bold uppercase flex items-center gap-2">
@@ -98,7 +101,7 @@ export default function HeroLanding() {
               </div>
               
               {/* Live Bar Chart */}
-              <div className="flex-1 rounded-xl border border-white/5 bg-white/[0.02] relative overflow-hidden flex items-end p-3 sm:p-6 gap-1 sm:gap-3 z-10">
+              <div className={`flex-1 rounded-xl border relative overflow-hidden flex items-end p-3 sm:p-6 gap-1 sm:gap-3 z-10 ${isDark ? 'border-white/5 bg-white/[0.02]' : 'border-[#D8DCE3] bg-[#F5F7FA]/50'}`}>
                 <div className="absolute inset-0 bg-[linear-gradient(transparent_0%,rgba(37,99,235,0.05)_100%)] pointer-events-none"></div>
                 {bars.map((h, i) => {
                   const isPeak = h > 85;
@@ -130,17 +133,17 @@ export default function HeroLanding() {
         <div className="flex flex-col items-center gap-3">
           {/* Crafted by line */}
           <div className="flex items-center gap-2 group">
-            <div className="h-[1px] w-8 bg-gradient-to-r from-transparent to-white/20 group-hover:to-blue-400/40 transition-colors"></div>
-            <p className="text-[11px] text-white/30 uppercase tracking-[0.2em] font-semibold group-hover:text-white/50 transition-colors">
+            <div className={`h-[1px] w-8 bg-gradient-to-r from-transparent group-hover:to-blue-400/40 transition-colors ${isDark ? 'to-white/20' : 'to-[#D8DCE3]'}`}></div>
+            <p className={`text-[11px] uppercase tracking-[0.2em] font-semibold group-hover:text-white/50 transition-colors ${isDark ? 'text-white/30' : 'text-[#64748B]'}`}>
               Designed & Developed by
             </p>
-            <div className="h-[1px] w-8 bg-gradient-to-l from-transparent to-white/20 group-hover:to-blue-400/40 transition-colors"></div>
+            <div className={`h-[1px] w-8 bg-gradient-to-l from-transparent group-hover:to-blue-400/40 transition-colors ${isDark ? 'to-white/20' : 'to-[#D8DCE3]'}`}></div>
           </div>
-          <a href="#" className="text-[15px] font-headline font-bold tracking-wide text-white/60 hover:text-blue-400 transition-all duration-300 relative group">
+          <a href="#" className={`text-[15px] font-headline font-bold tracking-wide hover:text-blue-400 transition-all duration-300 relative group ${isDark ? 'text-white/60' : 'text-[#44505A]'}`}>
             Rohit Maurya
             <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-gradient-to-r from-blue-500 to-cyan-400 group-hover:w-full transition-all duration-500"></span>
           </a>
-          <p className="text-[10px] text-white/20 tracking-wider">© 2026 PulseIQ • All rights reserved</p>
+          <p className={`text-[10px] tracking-wider ${isDark ? 'text-white/20' : 'text-[#94A3B8]'}`}>© 2026 PulseIQ • All rights reserved</p>
         </div>
       </footer>
 

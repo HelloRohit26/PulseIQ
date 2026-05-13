@@ -48,7 +48,82 @@
   --spacing-container-margin: 24px;
 }
 
-/* Custom Scrollbar */
+/* ═══════════════════════════════════════════════ */
+/* ═══════ LIGHT MODE THEME OVERRIDES ══════════ */
+/* ═══════════════════════════════════════════════ */
+html.light {
+  --color-background: #F5F7FA;
+  --color-surface: #FFFFFF;
+  --color-surface-dim: #EDF0F4;
+  --color-surface-bright: #FFFFFF;
+  --color-surface-container-lowest: #FFFFFF;
+  --color-surface-container-low: #F0F3F7;
+  --color-surface-container: #EAEdF2;
+  --color-surface-container-high: #E4E8EE;
+  --color-surface-container-highest: #DDE1E8;
+  --color-surface-variant: #E0E4EA;
+  --color-on-surface: #1A1D23;
+  --color-on-surface-variant: #44505A;
+  --color-on-background: #1A1D23;
+  --color-primary: #005F6B;
+  --color-primary-fixed: #007A8A;
+  --color-primary-fixed-dim: #00899C;
+  --color-primary-container: #00A3B8;
+  --color-on-primary: #FFFFFF;
+  --color-accent-electric: #0097A7;
+  --color-secondary: #6B4EAE;
+  --color-secondary-container: #EDE5FF;
+  --color-on-secondary-container: #4A2D90;
+  --color-tertiary: #B8860B;
+  --color-tertiary-container: #FFD54F;
+  --color-sentiment-positive: #16A34A;
+  --color-sentiment-negative: #DC2626;
+  --color-sentiment-neutral: #64748B;
+  --color-border-subtle: #D8DCE3;
+  --color-outline: #6B7B85;
+  --color-outline-variant: #B0BCC5;
+  --color-error: #B3261E;
+  --color-error-container: #F9DEDC;
+  --color-surface-tint: #0097A7;
+  --color-inverse-surface: #2A3233;
+  --color-inverse-on-surface: #EFF1F2;
+  --color-inverse-primary: #00D4E8;
+}
+
+/* Smooth theme transition on ALL elements */
+html.light *,
+html.light *::before,
+html.light *::after {
+  transition-property: background-color, border-color, color, box-shadow;
+  transition-duration: 0.3s;
+  transition-timing-function: ease;
+}
+
+/* Light mode scrollbar */
+html.light ::-webkit-scrollbar-track { background: #F5F7FA; }
+html.light ::-webkit-scrollbar-thumb { background: #C8CDD5; }
+html.light ::-webkit-scrollbar-thumb:hover { background: #0097A7; }
+
+/* Light mode body */
+html.light body {
+  background-color: #F5F7FA;
+  color: #1A1D23;
+}
+
+/* Light mode selection */
+html.light ::selection {
+  background: rgba(0, 151, 167, 0.2);
+  color: #005F6B;
+}
+
+/* Light mode chart grid */
+html.light .recharts-cartesian-grid-horizontal line,
+html.light .recharts-cartesian-grid-vertical line {
+  stroke: #D8DCE3;
+  stroke-opacity: 0.7;
+}
+
+/* Custom Scrollbar (Dark Mode Default) */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: #0B0E14; }
 ::-webkit-scrollbar-thumb { background: #30363D; border-radius: 4px; }

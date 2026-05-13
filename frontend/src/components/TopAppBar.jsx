@@ -1,12 +1,14 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { isBackendOnline } from '../services/api';
+import { useTheme } from '../ThemeContext';
 
 export default function TopAppBar({ autoRefresh, setAutoRefresh, lastUpdated }) {
   const location = useLocation();
   const [online, setOnline] = useState(null);
   const [user, setUser] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const check = () => setOnline(isBackendOnline());
@@ -140,6 +142,24 @@ export default function TopAppBar({ autoRefresh, setAutoRefresh, lastUpdated }) 
           <button className="hover:text-accent-electric transition-colors duration-200 relative" title="Notifications">
             <span className="material-symbols-outlined">notifications</span>
             <span className="absolute top-0 right-0 w-2 h-2 bg-accent-electric rounded-full"></span>
+          </button>
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            className="relative w-9 h-9 rounded-xl flex items-center justify-center hover:bg-surface-variant/50 transition-all duration-300 group cursor-pointer"
+            id="theme-toggle-btn"
+          >
+            <span className={`material-symbols-outlined text-[20px] transition-all duration-400 ${
+              theme === 'dark' 
+                ? 'text-tertiary-container rotate-0 opacity-100' 
+                : 'text-accent-electric rotate-180 opacity-0 absolute'
+            }`} style={{ fontVariationSettings: "'FILL' 1" }}>dark_mode</span>
+            <span className={`material-symbols-outlined text-[20px] transition-all duration-400 ${
+              theme === 'light' 
+                ? 'text-tertiary-container rotate-0 opacity-100' 
+                : 'text-accent-electric -rotate-180 opacity-0 absolute'
+            }`} style={{ fontVariationSettings: "'FILL' 1" }}>light_mode</span>
           </button>
           {user ? (
             <div className="flex items-center gap-2 md:gap-3">

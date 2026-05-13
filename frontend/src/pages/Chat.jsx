@@ -480,6 +480,42 @@ export default function Chat() {
           background: none;
         }
       `}</style>
+      <style>{`
+        /* Light mode overrides for chat response body */
+        html.light .chat-response-body {
+          color: var(--color-on-surface);
+        }
+        html.light .chat-response-body .chat-h2 {
+          color: var(--color-accent-electric);
+          border-bottom-color: var(--color-border-subtle);
+        }
+        html.light .chat-response-body .chat-h3 {
+          color: var(--color-primary);
+        }
+        html.light .chat-response-body .chat-h3::before {
+          background: var(--color-accent-electric);
+        }
+        html.light .chat-response-body .chat-h4 {
+          color: var(--color-primary-fixed);
+        }
+        html.light .chat-response-body .chat-bold {
+          color: var(--color-on-surface);
+        }
+        html.light .chat-response-body .chat-italic {
+          color: var(--color-on-surface-variant);
+        }
+        html.light .chat-response-body .chat-code-inline {
+          background: rgba(0, 151, 167, 0.08);
+          border-color: rgba(0, 151, 167, 0.2);
+          color: var(--color-accent-electric);
+        }
+        html.light .chat-response-body .chat-ul .chat-li::before {
+          background: var(--color-accent-electric);
+        }
+        html.light .chat-response-body .chat-li-num::before {
+          color: var(--color-accent-electric);
+        }
+      `}</style>
     </div>
   );
 }
