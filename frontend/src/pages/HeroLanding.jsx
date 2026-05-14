@@ -132,7 +132,7 @@ export default function HeroLanding() {
       <footer className="relative z-10 w-full py-8 mt-auto">
         <div className="flex flex-col items-center gap-3">
           {/* Crafted by line */}
-          <div className="flex items-center gap-2 group">
+          {/* <div className="flex items-center gap-2 group">
             <div className={`h-[1px] w-8 bg-gradient-to-r from-transparent group-hover:to-blue-400/40 transition-colors ${isDark ? 'to-white/20' : 'to-[#D8DCE3]'}`}></div>
             <p className={`text-[11px] uppercase tracking-[0.2em] font-semibold group-hover:text-white/50 transition-colors ${isDark ? 'text-white/30' : 'text-[#64748B]'}`}>
               Designed & Developed by
@@ -142,7 +142,7 @@ export default function HeroLanding() {
           <a href="#" className={`text-[15px] font-headline font-bold tracking-wide hover:text-blue-400 transition-all duration-300 relative group ${isDark ? 'text-white/60' : 'text-[#44505A]'}`}>
             Rohit Maurya
             <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-gradient-to-r from-blue-500 to-cyan-400 group-hover:w-full transition-all duration-500"></span>
-          </a>
+          </a> */}
           <p className={`text-[10px] tracking-wider ${isDark ? 'text-white/20' : 'text-[#94A3B8]'}`}>© 2026 PulseIQ • All rights reserved</p>
         </div>
       </footer>
