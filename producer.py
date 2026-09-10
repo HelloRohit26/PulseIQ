@@ -11,21 +11,27 @@ API_KEY = os.getenv('NEWS_API_KEY')
 
 # --- INITIALIZE KAFKA PRODUCER WITH RETRY ---
 def create_producer(retries=10, delay=5):
+    bootstrap_server = os.getenv('KAFKA_BOOTSTRAP_SERVERS', 'kafka:9092')
+    fallback_server = 'localhost:9092'
+    
     for attempt in range(1, retries + 1):
-        try:
-            p = KafkaProducer(
-                bootstrap_servers=['kafka:9092'],
-                api_version=(2, 5, 0),
-                value_serializer=lambda v: json.dumps(v).encode('utf-8')
-            )
-            print("✅ Connected to Kafka!")
-            return p
-        except Exception as e:
-            print(f"⏳ Kafka not ready (attempt {attempt}/{retries}): {e}")
-            time.sleep(delay)
+        for srv in [bootstrap_server, fallback_server]:
+            try:
+                p = KafkaProducer(
+                    bootstrap_servers=[srv],
+                    api_version=(2, 5, 0),
+                    value_serializer=lambda v: json.dumps(v).encode('utf-8')
+                )
+                print(f"✅ Connected to Kafka on {srv}!")
+                return p
+            except Exception:
+                pass
+        print(f"⏳ Kafka not ready (attempt {attempt}/{retries}). Retrying in {delay}s...")
+        time.sleep(delay)
     raise Exception("❌ Could not connect to Kafka after multiple retries.")
 
 producer = create_producer()
+seen_article_titles = set()
 
 # --- EXPANDED LAYER 1 FILTER ---
 # A massive whitelist of 250+ reliable news sources across global, finance, tech, crypto, and science
@@ -123,12 +129,16 @@ def fetch_and_stream_news():
                 articles = response.json().get('articles', [])
                 
                 for article in articles:
+                    title = article.get('title', '').strip()
+                    if not title or title in seen_article_titles:
+                        continue
                     is_valid, reason = is_valid_article(article)
                     if is_valid:
+                        seen_article_titles.add(title)
                         producer.send('news_articles', value=article)
                         total_saved += 1
                         # Short sleep to prevent hitting Kafka too hard
-                        time.sleep(0.1) 
+                        time.sleep(0.05) 
                 
                 print(f"📊 Progress: {total_saved} articles total sent to Kafka.")
             else:

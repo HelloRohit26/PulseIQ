@@ -34,12 +34,16 @@ vector_store = Chroma(
 llm = ChatGoogleGenerativeAI(model="gemini-3-flash-preview", temperature=0.3)
 
 # --- 4. BUILD THE RAG PROMPT ---
+from datetime import datetime, timezone
+current_utc = datetime.now(timezone.utc).strftime("%A, %B %d, %Y at %H:%M UTC")
 system_prompt = (
-    "You are PulseIQ, an advanced real-time financial news AI. "
+    f"You are PulseIQ, an advanced institutional real-time financial news AI terminal. "
+    f"Today's exact live date and time is {current_utc}. "
     "Use the following pieces of retrieved news context to answer the user's question. "
-    "If the answer is not in the context, just say 'I do not have enough recent news to answer that.' "
+    "If the answer is not in the context, synthesize the macro implications or clearly state recent limits. "
     "Always cite the sources (e.g., Reuters, Bloomberg) mentioned in the context. "
-    "\n\nContext:\n{context}"
+    "If asked about today's date or the current year, always state today's date based on the live timestamp provided above.\n\n"
+    "Context:\n{context}"
 )
 
 prompt = ChatPromptTemplate.from_messages([

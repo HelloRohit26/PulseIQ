@@ -14,6 +14,8 @@ import Historical from './pages/Historical';
 import Architecture from './pages/Architecture';
 import Newspaper from './pages/Newspaper';
 import ThreatWeb from './pages/ThreatWeb';
+import TradingTerminal from './pages/TradingTerminal';
+import PortfolioWarRoom from './pages/PortfolioWarRoom';
 
 const REFRESH_INTERVAL = 30000; // 30 seconds
 
@@ -82,6 +84,8 @@ function AppLayout() {
         <main className="flex-1 ml-0 md:ml-64 overflow-y-auto">
           <Routes>
             <Route path="/dashboard" element={<Dashboard articles={articles} />} />
+            <Route path="/terminal" element={<TradingTerminal />} />
+            <Route path="/portfolio" element={<PortfolioWarRoom />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/sentiment" element={<SentimentBreakdown articles={articles} />} />
             <Route path="/map" element={<SentimentMap articles={articles} />} />

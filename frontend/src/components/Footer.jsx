@@ -17,7 +17,7 @@ export default function Footer() {
         ))}
       </nav>
       <div className="font-ticker text-[14px] text-accent-electric opacity-70">
-        © 2024 PulseIQ Intelligence. All systems operational.
+        © {new Date().getFullYear()} PulseIQ Intelligence. All systems operational.
       </div>
     </footer>
   );

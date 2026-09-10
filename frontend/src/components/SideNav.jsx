@@ -1,6 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
 
 const navItems = [
+  { icon: 'candlestick_chart', label: 'Trading Terminal', path: '/terminal' },
+  { icon: 'shield', label: 'Portfolio War Room', path: '/portfolio' },
   { icon: 'newspaper', label: 'Daily Pulse', path: '/newspaper' },
   { icon: 'smart_toy', label: 'Deep Pulse Chat', path: '/chat' },
   { icon: 'filter_list', label: 'Sector Filters', path: '/sentiment' },

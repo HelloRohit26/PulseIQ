@@ -39,6 +39,8 @@ services:
     build: .
     command: python consumer.py
     env_file: .env
+    volumes:
+      - chroma_data:/app/chroma_data
     restart: always
     depends_on:
       kafka:
@@ -61,6 +63,8 @@ services:
     command: uvicorn api:app --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
+    volumes:
+      - chroma_data:/app/chroma_data
     env_file: .env
     restart: always
     depends_on:
@@ -81,3 +85,4 @@ services:
 
 volumes:
   postgres_data:
+  chroma_data:

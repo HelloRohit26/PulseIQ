@@ -2,7 +2,7 @@
 PulseIQ Authentication Module
 ------------------------------
 Handles user registration, login, JWT token management,
-and resilient PostgreSQL / SQLite users table storage.
+and PostgreSQL users table creation.
 """
 
 import os
@@ -11,7 +11,6 @@ import hmac
 import json
 import base64
 import time
-import sqlite3
 import psycopg2
 from datetime import datetime
 
@@ -21,103 +20,22 @@ JWT_SECRET = os.getenv("JWT_SECRET", "pulseiq_super_secret_key_2026")
 JWT_EXPIRY_HOURS = 24
 
 
-# --- RESILIENT DATABASE ABSTRACTION (PostgreSQL with SQLite fallback) ---
-class DBCursorWrapper:
-    def __init__(self, cur, is_sqlite=False):
-        self.cur = cur
-        self.is_sqlite = is_sqlite
-        self.last_inserted_id = None
-
-    def execute(self, query, params=None):
-        if self.is_sqlite:
-            q = query.replace('%s', '?')
-            if 'RETURNING id' in q or 'returning id' in q:
-                q = q.replace('RETURNING id', '').replace('returning id', '').strip()
-                if params:
-                    self.cur.execute(q, params)
-                else:
-                    self.cur.execute(q)
-                self.last_inserted_id = self.cur.lastrowid
-                return self.cur
-            if params:
-                return self.cur.execute(q, params)
-            return self.cur.execute(q)
-        else:
-            if params:
-                return self.cur.execute(query, params)
-            return self.cur.execute(query)
-
-    def fetchone(self):
-        if self.is_sqlite and self.last_inserted_id is not None:
-            val = (self.last_inserted_id,)
-            self.last_inserted_id = None
-            return val
-        return self.cur.fetchone()
-
-    def fetchall(self):
-        return self.cur.fetchall()
-
-    def close(self):
-        self.cur.close()
-
-
-class DBConnWrapper:
-    def __init__(self, conn, is_sqlite=False):
-        self.conn = conn
-        self.is_sqlite = is_sqlite
-
-    def cursor(self):
-        return DBCursorWrapper(self.conn.cursor(), self.is_sqlite)
-
-    def commit(self):
-        self.conn.commit()
-
-    def rollback(self):
-        self.conn.rollback()
-
-    def close(self):
-        self.conn.close()
-
-
+# --- DATABASE ---
 def get_db_connection():
-    """Tries PostgreSQL connection first; falls back to local SQLite if PG is unavailable."""
-    host = os.getenv("POSTGRES_HOST", "postgres")
-    port = os.getenv("POSTGRES_PORT", "5432")
-    db = os.getenv("POSTGRES_DB", "pulseiq_db")
-    user = os.getenv("POSTGRES_USER", "pulseiq_user")
-    password = os.getenv("POSTGRES_PASSWORD", "mysecretpassword")
-    
-    # Try PostgreSQL on target host
-    for target_host in [host, "localhost"]:
-        try:
-            conn = psycopg2.connect(host=target_host, port=port, database=db, user=user, password=password, connect_timeout=2)
-            return DBConnWrapper(conn, is_sqlite=False)
-        except Exception:
-            pass
-
-    # Seamless fallback to SQLite
-    sqlite_conn = sqlite3.connect("pulseiq_auth.db", timeout=10)
-    return DBConnWrapper(sqlite_conn, is_sqlite=True)
+    return psycopg2.connect(
+        host="postgres", port="5432",
+        database="pulseiq_db", user="pulseiq_user",
+        password="mysecretpassword"
+    )
 
 
 def init_users_table():
-    """Create the users table if it doesn't exist. Supports both PostgreSQL and SQLite."""
-    conn = get_db_connection()
-    cur = conn.cursor()
-    try:
-        if conn.is_sqlite:
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS users (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    username VARCHAR(50) UNIQUE NOT NULL,
-                    email VARCHAR(120) UNIQUE NOT NULL,
-                    password_hash VARCHAR(256) NOT NULL,
-                    full_name VARCHAR(100),
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    last_login TIMESTAMP
-                );
-            """)
-        else:
+    """Create the users table if it doesn't exist. Retries on connection failure."""
+    import time
+    for attempt in range(5):
+        try:
+            conn = get_db_connection()
+            cur = conn.cursor()
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS users (
                     id SERIAL PRIMARY KEY,
@@ -129,16 +47,18 @@ def init_users_table():
                     last_login TIMESTAMP
                 );
             """)
-        conn.commit()
-        print("[AUTH] Users table ready! Storage engine:", "SQLite" if conn.is_sqlite else "PostgreSQL")
-    except Exception as e:
-        print("[AUTH] Error creating users table:", e)
-    finally:
-        cur.close()
-        conn.close()
+            conn.commit()
+            cur.close()
+            conn.close()
+            print("✅ Users table ready!")
+            return
+        except Exception as e:
+            print(f"⏳ DB not ready for users table (attempt {attempt+1}/5): {e}")
+            time.sleep(3)
+    print("⚠️ Could not create users table after 5 attempts")
 
 
-# --- PASSWORD HASHING ---
+# --- PASSWORD HASHING (using hashlib — no extra dependency needed) ---
 def hash_password(password: str) -> str:
     """Hash password with SHA-256 + salt."""
     salt = os.urandom(32)
@@ -148,17 +68,14 @@ def hash_password(password: str) -> str:
 
 def verify_password(password: str, stored_hash: str) -> bool:
     """Verify a password against the stored hash."""
-    try:
-        stored_bytes = bytes.fromhex(stored_hash)
-        salt = stored_bytes[:32]
-        stored_key = stored_bytes[32:]
-        new_key = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
-        return hmac.compare_digest(stored_key, new_key)
-    except Exception:
-        return False
+    stored_bytes = bytes.fromhex(stored_hash)
+    salt = stored_bytes[:32]
+    stored_key = stored_bytes[32:]
+    new_key = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
+    return hmac.compare_digest(stored_key, new_key)
 
 
-# --- JWT TOKEN ---
+# --- JWT TOKEN (lightweight, no PyJWT dependency needed) ---
 def _b64_encode(data: bytes) -> str:
     return base64.urlsafe_b64encode(data).rstrip(b'=').decode('utf-8')
 
@@ -220,8 +137,7 @@ def register_user(username: str, email: str, password: str, full_name: str = "")
             "INSERT INTO users (username, email, password_hash, full_name) VALUES (%s, %s, %s, %s) RETURNING id",
             (username, email, password_hash, full_name)
         )
-        row = cur.fetchone()
-        user_id = row[0] if row else 1
+        user_id = cur.fetchone()[0]
         conn.commit()
         
         token = create_token(user_id, username, full_name)

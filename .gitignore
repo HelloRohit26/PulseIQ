@@ -10,3 +10,9 @@ env/
 # Docker local data volumes (DO NOT push your massive database to GitHub!)
 postgres_data/
 chroma_data/
+*.db
+telegram_config.json
+node_modules/
+.DS_Store
+data.txt
+*.ipynb
