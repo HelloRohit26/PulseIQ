@@ -25,7 +25,7 @@ export default function Newspaper({ articles: propArticles, lastUpdated }) {
       setLocalArticles(propArticles);
       setLoading(false);
     } else {
-      fetchArticles(50).then(a => { setLocalArticles(a); setLoading(false); });
+      fetchArticles(125).then(a => { setLocalArticles(a); setLoading(false); });
     }
   }, [propArticles]);
 

@@ -30,7 +30,7 @@ function AppLayout() {
   const intervalRef = useRef(null);
 
   const loadArticles = useCallback(async () => {
-    const data = await fetchArticles(100);
+    const data = await fetchArticles(125);
     setArticles(data);
     setLastUpdated(new Date());
   }, []);
