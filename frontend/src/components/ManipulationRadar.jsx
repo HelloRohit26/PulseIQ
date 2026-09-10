@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { checkHeadlineCredibility } from '../services/api';
+import TiltCard from './TiltCard';
+import { playClick, playAlert, playSuccess } from '../utils/soundEffects';
 
 const SAMPLES = [
   { label: 'Verified News', text: 'Reuters: TSMC accelerates sub-2nm foundry allocation for tier-1 hyperscalers.' },
@@ -15,23 +17,36 @@ export default function ManipulationRadar() {
   const handleAudit = async (customText) => {
     const query = (customText || inputText).trim();
     if (!query) return;
+    playClick();
     setScanning(true);
     const res = await checkHeadlineCredibility(query);
     setResult(res);
     setScanning(false);
+    if (res?.verdict_type === 'danger') {
+      playAlert();
+    } else {
+      playSuccess();
+    }
   };
 
   return (
-    <div className="bg-surface border border-border-subtle rounded-2xl p-5 md:p-6 shadow-xl flex flex-col gap-5" id="manipulation-radar-widget">
+    <div className="glass-panel specular-border rounded-2xl p-5 md:p-6 shadow-2xl flex flex-col gap-5 relative overflow-hidden" id="manipulation-radar-widget">
+      {/* Dynamic Cyber Scanning Laser Line */}
+      <div className="radar-sweep-line"></div>
+
+      {/* Ambient background glow */}
+      <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-rose-500/10 blur-3xl pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full bg-cyan-500/5 blur-3xl pointer-events-none"></div>
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border-subtle/60 pb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center flex-shrink-0">
-            <span className="material-symbols-outlined text-rose-400 text-[24px]">radar</span>
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500/25 to-purple-600/20 border border-rose-500/40 flex items-center justify-center flex-shrink-0 shadow-[0_0_20px_rgba(244,63,94,0.3)]">
+            <span className="material-symbols-outlined text-rose-400 text-[26px] animate-pulse">radar</span>
           </div>
           <div>
             <h2 className="font-headline text-base md:text-lg font-bold text-on-surface flex items-center gap-2">
-              Market Manipulation & <span className="text-rose-400">Whale Trap Radar</span>
+              Market Manipulation & <span className="text-gradient-magenta">Whale Trap Radar</span>
             </h2>
             <p className="font-body text-xs text-on-surface-variant">
               Cross-references breaking social rumors against SEC EDGAR 8-K filings and algorithmic bot networks.
@@ -48,7 +63,7 @@ export default function ManipulationRadar() {
                 setInputText(s.text);
                 handleAudit(s.text);
               }}
-              className="px-2 py-1 rounded bg-surface-container border border-border-subtle hover:border-accent-electric text-[11px] font-mono text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
+              className="px-3 py-1.5 rounded-xl glass-panel specular-border text-[11px] font-mono text-on-surface-variant hover:text-on-surface hover:bg-white/10 transition-all cursor-pointer shadow-sm hover:scale-105"
             >
               {s.label}
             </button>
@@ -65,7 +80,7 @@ export default function ManipulationRadar() {
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleAudit()}
-            className="w-full bg-surface-container border border-border-subtle rounded-xl px-4 py-3 text-xs md:text-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-rose-400 font-body"
+            className="w-full bg-surface-container-low/80 border border-border-subtle rounded-xl px-4 py-3 text-xs md:text-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-rose-400 font-body transition-colors"
           />
           {inputText && (
             <button
@@ -79,24 +94,40 @@ export default function ManipulationRadar() {
         <button
           onClick={() => handleAudit()}
           disabled={scanning || !inputText.trim()}
-          className="px-5 py-3 bg-rose-500 hover:bg-rose-600 disabled:opacity-50 text-white font-mono text-xs font-bold rounded-xl transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-rose-500/20 flex-shrink-0"
+          className="px-6 py-3 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-400 hover:to-rose-500 disabled:opacity-50 text-white font-mono text-xs font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-rose-500/30 flex-shrink-0 btn-shimmer hover:scale-102 active:scale-95"
         >
           <span className="material-symbols-outlined text-[18px]">
             {scanning ? 'progress_activity' : 'search_check'}
           </span>
-          {scanning ? 'Auditing...' : 'Run Forensic Audit'}
+          {scanning ? 'Auditing Telemetry...' : 'Run Forensic Audit'}
         </button>
       </div>
 
-      {/* Forensic Audit Results Panel */}
+      {/* Forensic Audit Results Panel Wrapped in 3D TiltCard */}
       {result && (
-        <div className={`p-5 rounded-2xl border flex flex-col gap-4 animate-fade-in ${
-          result.verdict_type === 'safe'
-            ? 'bg-emerald-500/5 border-emerald-500/30'
-            : result.verdict_type === 'danger'
-            ? 'bg-rose-500/10 border-rose-500/40'
-            : 'bg-amber-500/5 border-amber-500/30'
-        }`}>
+        <TiltCard
+          spotlightColor={
+            result.verdict_type === 'safe'
+              ? 'rgba(16, 185, 129, 0.25)'
+              : result.verdict_type === 'danger'
+              ? 'rgba(244, 63, 94, 0.25)'
+              : 'rgba(245, 158, 11, 0.25)'
+          }
+          borderGlowColor={
+            result.verdict_type === 'safe'
+              ? 'rgba(16, 185, 129, 0.6)'
+              : result.verdict_type === 'danger'
+              ? 'rgba(244, 63, 94, 0.6)'
+              : 'rgba(245, 158, 11, 0.6)'
+          }
+          className={`p-5 rounded-2xl flex flex-col gap-4 animate-scale-in border-beam-card ${
+            result.verdict_type === 'safe'
+              ? 'bg-emerald-500/10 border-emerald-500/40'
+              : result.verdict_type === 'danger'
+              ? 'bg-rose-500/15 border-rose-500/50'
+              : 'bg-amber-500/10 border-amber-500/40'
+          }`}
+        >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border-subtle/50 pb-3">
             <div className="flex items-center gap-2">
               <span className={`w-3 h-3 rounded-full animate-ping ${
@@ -154,7 +185,7 @@ export default function ManipulationRadar() {
               ))}
             </ul>
           </div>
-        </div>
+        </TiltCard>
       )}
     </div>
   );

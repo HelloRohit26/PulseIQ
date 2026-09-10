@@ -3,8 +3,12 @@ import { Link } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { fetchArticles, fetchMarketData, fetchStories } from '../services/api';
 import ManipulationRadar from '../components/ManipulationRadar';
+import TiltCard from '../components/TiltCard';
+import { playClick } from '../utils/soundEffects';
 
 export default function Dashboard({ articles = [] }) {
+  // View mode tab state
+  const [activeTab, setActiveTab] = useState('ALL');
   // Market correlation state (Feature 2)
   const [marketData, setMarketData] = useState(null);
   // Developing stories state (Feature 4)
@@ -85,27 +89,63 @@ export default function Dashboard({ articles = [] }) {
   return (
     <div className="p-(--spacing-container-margin) space-y-6">
 
+      {/* VIEW MODE TAB CONTROLLER & STATUS */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-2 border-b border-border-subtle/50">
+        <div className="flex items-center gap-1.5 p-1.5 rounded-2xl glass-panel specular-border">
+          {[
+            { id: 'ALL', label: 'Executive Overview', icon: 'dashboard' },
+            { id: 'ALPHA', label: 'Sentiment Alpha Engine', icon: 'query_stats' },
+            { id: 'RISK', label: 'Whale & Risk Radar', icon: 'radar' },
+            { id: 'STORIES', label: 'Developing Stories', icon: 'account_tree' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => {
+                playClick();
+                setActiveTab(tab.id);
+              }}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-medium transition-all duration-300 cursor-pointer ${
+                activeTab === tab.id
+                  ? 'bg-gradient-to-r from-accent-electric/30 via-primary-container/30 to-accent-magenta/20 text-white border border-accent-electric shadow-[0_0_20px_rgba(0,242,254,0.35)] scale-105'
+                  : 'text-on-surface-variant hover:text-on-surface hover:bg-white/5 border border-transparent'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[16px]">{tab.icon}</span>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-2 text-[11px] font-mono text-on-surface-variant">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+          <span className="text-gradient-cyan font-bold">SYSTEM ACTIVE &bull; 60 FPS QUANTUM CORE</span>
+        </div>
+      </div>
+
       {/* FEATURE 5: Real-Time Volatility Anomaly Alert Banner */}
-      {!anomalyDismissed && (
-        <div className="bg-gradient-to-r from-amber-500/15 via-sentiment-negative/10 to-transparent border border-amber-500/40 rounded-xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-[0_0_20px_rgba(245,158,11,0.1)]">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
-              <span className="material-symbols-outlined text-[20px] animate-pulse">crisis_alert</span>
+      {!anomalyDismissed && (activeTab === 'ALL' || activeTab === 'RISK') && (
+        <div className="glass-panel specular-border border-beam-card bg-gradient-to-r from-amber-500/20 via-rose-500/15 to-transparent border border-amber-500/50 rounded-2xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-[0_0_35px_rgba(245,158,11,0.2)] animate-[fadeIn_0.3s_ease]">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-xl bg-amber-500/25 border border-amber-500/50 flex items-center justify-center text-amber-300 shrink-0 shadow-[0_0_15px_rgba(245,158,11,0.4)]">
+              <span className="material-symbols-outlined text-[24px] animate-pulse">crisis_alert</span>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-amber-400">ANOMALY DETECTED</span>
-                <span className="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-mono">CONFIDENCE 91.2%</span>
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-amber-400">VOLATILITY ANOMALY DETECTED</span>
+                <span className="text-[10px] bg-amber-500/30 text-amber-200 px-2.5 py-0.5 rounded-full font-mono font-bold border border-amber-500/40">CONFIDENCE 91.2%</span>
               </div>
-              <p className="text-xs text-on-surface/90 mt-0.5">
-                Elevated divergence detected in <strong>Global Maritime Energy Corridors</strong>. Lead/lag indicator suggests <strong>+18m predictive lag</strong> before spot contract repricing.
+              <p className="text-xs text-on-surface/90 mt-0.5 leading-relaxed">
+                Elevated sentiment divergence detected in <strong>Global Maritime Energy Corridors</strong>. Predictive indicator suggests <strong>+18m predictive lag</strong> before spot contract repricing.
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2 self-end md:self-center">
             <button 
-              onClick={() => setAnomalyDismissed(true)} 
-              className="px-3 py-1.5 rounded-lg bg-surface border border-border-subtle hover:bg-surface-variant text-xs text-on-surface-variant transition-colors cursor-pointer"
+              onClick={() => {
+                playClick();
+                setAnomalyDismissed(true);
+              }} 
+              className="px-4 py-2 rounded-xl bg-surface/90 border border-border-subtle hover:bg-surface-variant hover:text-white text-xs text-on-surface-variant transition-all cursor-pointer shadow-md"
             >
               Acknowledge
             </button>
@@ -113,275 +153,308 @@ export default function Dashboard({ articles = [] }) {
         </div>
       )}
 
-      {/* KILLER FEATURE QUICK-LAUNCH COMMAND BAR */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Link
-          to="/terminal"
-          className="group p-4 rounded-2xl bg-gradient-to-r from-accent-electric/15 via-surface to-surface border border-accent-electric/30 hover:border-accent-electric transition-all duration-200 flex items-center justify-between shadow-lg shadow-accent-electric/5"
-        >
-          <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-xl bg-accent-electric/20 border border-accent-electric/40 flex items-center justify-center text-accent-electric group-hover:scale-105 transition-transform">
-              <span className="material-symbols-outlined text-[24px]">candlestick_chart</span>
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-sm font-bold text-on-surface group-hover:text-accent-electric transition-colors">
-                  TradingView Terminal & AI Playbook
-                </span>
-                <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-bold">LIVE</span>
+      {/* KILLER FEATURE QUICK-LAUNCH 3D COMMAND BAR */}
+      {(activeTab === 'ALL' || activeTab === 'ALPHA') && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <TiltCard
+            spotlightColor="rgba(0, 242, 254, 0.25)"
+            borderGlowColor="rgba(0, 242, 254, 0.6)"
+            tiltIntensity={7}
+            className="border-beam-card"
+          >
+            <Link
+              to="/terminal"
+              onClick={playClick}
+              className="group p-5 flex items-center justify-between w-full h-full bg-gradient-to-r from-accent-electric/20 via-surface/90 to-surface/70"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-electric/30 to-primary-container/30 border border-accent-electric/50 flex items-center justify-center text-accent-electric group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(0,229,255,0.5)] transition-all">
+                  <span className="material-symbols-outlined text-[26px]">candlestick_chart</span>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-sm md:text-base font-bold text-gradient-cyan">
+                      TradingView Terminal & AI Playbook
+                    </span>
+                    <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40 animate-pulse">LIVE</span>
+                  </div>
+                  <p className="font-body text-xs text-on-surface-variant mt-0.5">
+                    Live candlestick charts + AI trade setups (Entry, Target, Stop-Loss).
+                  </p>
+                </div>
               </div>
-              <p className="font-body text-xs text-on-surface-variant">
-                Live candlestick charts + AI trade setups (Entry, Target, Stop-Loss).
-              </p>
-            </div>
-          </div>
-          <span className="material-symbols-outlined text-accent-electric group-hover:translate-x-1 transition-transform">
-            arrow_forward
-          </span>
-        </Link>
+              <span className="material-symbols-outlined text-accent-electric group-hover:translate-x-2 group-hover:scale-125 transition-all">
+                arrow_forward
+              </span>
+            </Link>
+          </TiltCard>
 
-        <Link
-          to="/portfolio"
-          className="group p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-surface to-surface border border-amber-500/30 hover:border-amber-400 transition-all duration-200 flex items-center justify-between shadow-lg shadow-amber-500/5"
-        >
-          <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 group-hover:scale-105 transition-transform">
-              <span className="material-symbols-outlined text-[24px]">shield</span>
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-sm font-bold text-on-surface group-hover:text-amber-400 transition-colors">
-                  Portfolio War Room & Risk Simulator
-                </span>
-                <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-bold">HOT</span>
+          <TiltCard
+            spotlightColor="rgba(245, 158, 11, 0.25)"
+            borderGlowColor="rgba(245, 158, 11, 0.6)"
+            tiltIntensity={7}
+            className="border-beam-card"
+          >
+            <Link
+              to="/portfolio"
+              onClick={playClick}
+              className="group p-5 flex items-center justify-between w-full h-full bg-gradient-to-r from-amber-500/20 via-surface/90 to-surface/70"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500/30 to-rose-500/20 border border-amber-500/50 flex items-center justify-center text-amber-300 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(245,158,11,0.5)] transition-all">
+                  <span className="material-symbols-outlined text-[26px]">shield</span>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-sm md:text-base font-bold text-gradient-gold">
+                      Portfolio War Room & Risk Simulator
+                    </span>
+                    <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-amber-500/25 text-amber-300 font-bold border border-amber-500/40">HOT</span>
+                  </div>
+                  <p className="font-body text-xs text-on-surface-variant mt-0.5">
+                    Personal holdings stress-test + breaking news shock exposure.
+                  </p>
+                </div>
               </div>
-              <p className="font-body text-xs text-on-surface-variant">
-                Personal holdings stress-test + breaking news shock exposure.
-              </p>
-            </div>
-          </div>
-          <span className="material-symbols-outlined text-amber-400 group-hover:translate-x-1 transition-transform">
-            arrow_forward
-          </span>
-        </Link>
-      </div>
+              <span className="material-symbols-outlined text-amber-400 group-hover:translate-x-2 group-hover:scale-125 transition-all">
+                arrow_forward
+              </span>
+            </Link>
+          </TiltCard>
+        </div>
+      )}
 
-      {/* Top KPI Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-(--spacing-gutter)">
-        <KPICard
-          label="Active Feed Articles"
-          value={articles.length > 0 ? `${metrics.total}` : '124'}
-          icon="article"
-          iconColor="text-accent-electric"
-          trend={`+${metrics.positive || 48} Bullish`}
-          trendColor="text-sentiment-positive"
-          trendIcon="trending_up"
-        />
-        <KPICard
-          label="Market Sentiment Index"
-          value={`${metrics.avgSentiment} / 100`}
-          icon="psychology"
-          iconColor="text-sentiment-positive"
-          trend="Institutional Buy Zone"
-          trendColor="text-sentiment-positive"
-          trendIcon="check_circle"
-          valueColor={Number(metrics.avgSentiment) > 50 ? 'text-sentiment-positive' : 'text-sentiment-negative'}
-        />
-        <KPICard
-          label="Predictive Alpha Lead"
-          value={marketData ? `${marketData.lead_lag_window_minutes}m` : '18m'}
-          icon="speed"
-          iconColor="text-accent-electric"
-          trend={`${marketData?.alpha_confidence || '86.4%'} Precision`}
-          trendColor="text-accent-electric"
-          trendIcon="target"
-        />
-        <KPICard
-          label="Whitelisted Outlets"
-          value="256"
-          icon="hub"
-          iconColor="text-accent-electric"
-          trend="0 Dropped Packets"
-          trendColor="text-sentiment-positive"
-          trendIcon="check_circle"
-        />
-      </div>
+      {/* Top 3D KPI Grid */}
+      {(activeTab === 'ALL' || activeTab === 'ALPHA') && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <KPICard
+            label="Active Feed Articles"
+            value={articles.length > 0 ? `${metrics.total}` : '124'}
+            icon="article"
+            iconColor="text-accent-electric"
+            trend={`+${metrics.positive || 48} Bullish`}
+            trendColor="text-sentiment-positive"
+            trendIcon="trending_up"
+            sparkline={[30, 45, 38, 55, 62, 70, 65, 80]}
+            sparkColor="#00e5ff"
+            spotlightColor="rgba(0, 242, 254, 0.22)"
+            borderGlowColor="rgba(0, 242, 254, 0.5)"
+          />
+          <KPICard
+            label="Market Sentiment Index"
+            value={`${metrics.avgSentiment} / 100`}
+            icon="psychology"
+            iconColor="text-sentiment-positive"
+            trend="Institutional Buy Zone"
+            trendColor="text-sentiment-positive"
+            trendIcon="check_circle"
+            valueColor={Number(metrics.avgSentiment) > 50 ? 'text-sentiment-positive' : 'text-sentiment-negative'}
+            sparkline={[40, 42, 50, 48, 56, 60, 64, 72]}
+            sparkColor="#10b981"
+            spotlightColor="rgba(16, 185, 129, 0.22)"
+            borderGlowColor="rgba(16, 185, 129, 0.5)"
+          />
+          <KPICard
+            label="Predictive Alpha Lead"
+            value={marketData ? `${marketData.lead_lag_window_minutes}m` : '18m'}
+            icon="speed"
+            iconColor="text-accent-violet"
+            trend={`${marketData?.alpha_confidence || '86.4%'} Precision`}
+            trendColor="text-accent-electric"
+            trendIcon="target"
+            sparkline={[12, 14, 15, 18, 17, 19, 18, 18]}
+            sparkColor="#a370ff"
+            spotlightColor="rgba(163, 112, 255, 0.22)"
+            borderGlowColor="rgba(163, 112, 255, 0.5)"
+          />
+          <KPICard
+            label="Whitelisted Outlets"
+            value="256"
+            icon="hub"
+            iconColor="text-accent-gold"
+            trend="0 Dropped Packets"
+            trendColor="text-sentiment-positive"
+            trendIcon="check_circle"
+            sparkline={[240, 245, 248, 250, 252, 254, 256, 256]}
+            sparkColor="#ffe500"
+            spotlightColor="rgba(255, 229, 0, 0.22)"
+            borderGlowColor="rgba(255, 229, 0, 0.5)"
+          />
+        </div>
+      )}
 
       {/* FEATURE 2: SENTIMENT-PRICE CORRELATION ENGINE */}
-      <div className="bg-surface border border-accent-electric/30 p-(--spacing-card-padding) rounded-xl shadow-[0_0_20px_rgba(0,229,255,0.06)] relative overflow-hidden">
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="material-symbols-outlined text-accent-electric text-[18px]">query_stats</span>
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-accent-electric">Feature: Sentiment-to-Price Correlation Engine</span>
-            </div>
-            <h3 className="font-headline text-lg font-bold text-on-surface">Institutional Asset Alpha Matrix</h3>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-high border border-border-subtle text-xs font-mono">
-              <span className="text-on-surface-variant">Correlation (r):</span>
-              <strong className="text-sentiment-positive">+{marketData?.composite_correlation_r || 0.76}</strong>
-            </div>
-            <span className="text-xs bg-accent-electric/15 text-accent-electric border border-accent-electric/30 px-2.5 py-1 rounded-full font-mono font-bold">
-              LEAD TIME: {marketData?.lead_lag_window_minutes || 18} MIN
-            </span>
-          </div>
-        </div>
-
-        {/* Asset Correlation Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {(marketData?.assets || []).map((asset) => (
-            <div key={asset.ticker} className="bg-surface-container-low p-3 rounded-lg border border-border-subtle flex flex-col justify-between h-28 hover:border-accent-electric/40 transition-colors">
-              <div className="flex justify-between items-start">
-                <div>
-                  <span className="font-mono text-xs font-bold text-on-surface">{asset.ticker}</span>
-                  <div className="text-[10px] text-on-surface-variant truncate max-w-[80px]">{asset.name}</div>
-                </div>
-                <span className={`text-[10px] font-bold font-mono ${asset.change.startsWith('+') ? 'text-sentiment-positive' : 'text-sentiment-negative'}`}>
-                  {asset.change}
-                </span>
+      {(activeTab === 'ALL' || activeTab === 'ALPHA') && (
+        <div className="glass-panel specular-border p-(--spacing-card-padding) rounded-2xl shadow-[0_0_35px_rgba(0,242,254,0.08)] relative overflow-hidden">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="material-symbols-outlined text-accent-electric text-[18px]">query_stats</span>
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-accent-electric">Feature: Sentiment-to-Price Correlation Engine</span>
               </div>
-              <div>
-                <div className="text-sm font-mono font-bold text-on-surface">
-                  ${typeof asset.price === 'number' ? asset.price.toLocaleString() : asset.price}
-                </div>
-                <div className="flex items-center justify-between text-[10px] text-on-surface-variant mt-1">
-                  <span>r={asset.correlation}</span>
-                  <span className={`font-semibold ${asset.alphaSignal.includes('Bullish') ? 'text-sentiment-positive' : asset.alphaSignal.includes('Bearish') ? 'text-sentiment-negative' : 'text-accent-electric'}`}>
-                    {asset.alphaSignal.split(' ')[0]}
+              <h3 className="font-headline text-lg md:text-xl font-bold text-gradient-aurora">Institutional Asset Alpha Matrix</h3>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container-high/80 border border-border-subtle text-xs font-mono">
+                <span className="text-on-surface-variant">Correlation (r):</span>
+                <strong className="text-sentiment-positive">+{marketData?.composite_correlation_r || 0.76}</strong>
+              </div>
+              <span className="text-xs bg-accent-electric/15 text-accent-electric border border-accent-electric/30 px-3 py-1 rounded-full font-mono font-bold shadow-[0_0_10px_rgba(0,229,255,0.2)]">
+                LEAD TIME: {marketData?.lead_lag_window_minutes || 18} MIN
+              </span>
+            </div>
+          </div>
+
+          {/* Asset Correlation Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {(marketData?.assets || []).map((asset) => (
+              <div key={asset.ticker} className="glass-panel specular-border p-3 rounded-xl flex flex-col justify-between h-28 hover:border-accent-electric/60 hover:-translate-y-0.5 transition-all group">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <span className="font-mono text-xs font-bold text-on-surface group-hover:text-accent-electric transition-colors">{asset.ticker}</span>
+                    <div className="text-[10px] text-on-surface-variant truncate max-w-[80px]">{asset.name}</div>
+                  </div>
+                  <span className={`text-[10px] font-bold font-mono ${asset.change.startsWith('+') ? 'text-sentiment-positive' : 'text-sentiment-negative'}`}>
+                    {asset.change}
                   </span>
                 </div>
+                <div>
+                  <div className="text-sm font-mono font-bold text-on-surface">
+                    ${typeof asset.price === 'number' ? asset.price.toLocaleString() : asset.price}
+                  </div>
+                  <div className="flex items-center justify-between text-[10px] text-on-surface-variant mt-1">
+                    <span>r={asset.correlation}</span>
+                    <span className={`font-semibold ${asset.alphaSignal.includes('Bullish') ? 'text-sentiment-positive' : asset.alphaSignal.includes('Bearish') ? 'text-sentiment-negative' : 'text-accent-electric'}`}>
+                      {asset.alphaSignal.split(' ')[0]}
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Main Grid: Chart & Sector Heatmap vs Sidebar */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-(--spacing-gutter)">
-        {/* Left Column (2/3) */}
-        <div className="lg:col-span-2 flex flex-col gap-(--spacing-gutter)">
-          
-          {/* Sentiment Trend Chart */}
-          <div className="bg-surface border border-border-subtle p-(--spacing-card-padding) rounded-xl flex-1 min-h-[400px] flex flex-col">
-            <div className="flex justify-between items-center mb-6">
+      {/* Main Charts & Analytics Grid */}
+      {(activeTab === 'ALL' || activeTab === 'ALPHA') && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 glass-panel specular-border p-(--spacing-card-padding) rounded-2xl flex flex-col">
+            <div className="flex justify-between items-center mb-4">
               <div>
-                <h3 className="font-ticker text-[14px] font-bold uppercase text-on-surface">Global Sentiment Ingestion Flow</h3>
-                <p className="text-xs text-on-surface-variant">Real-time harmonic signal telemetry from 256 validated feeds</p>
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-accent-electric text-[18px]">show_chart</span>
+                  <h3 className="font-ticker text-[15px] font-bold uppercase text-on-surface">Global Sentiment Trajectory</h3>
+                </div>
+                <p className="font-body text-xs text-on-surface-variant mt-0.5">Rolling 24h institutional positive bias overlay</p>
               </div>
-              <div className="flex gap-2">
-                {['1H', '4H', '24H'].map((t, i) => (
-                  <button
-                    key={t}
-                    className={`px-3 py-1 text-xs border rounded transition-colors ${
-                      i === 0 ? 'border-accent-electric text-accent-electric hover:bg-accent-electric/10' : 'border-border-subtle text-on-surface-variant hover:bg-surface-variant'
-                    }`}
-                  >
-                    {t}
-                  </button>
-                ))}
-              </div>
+              <span className="font-mono text-xs text-accent-electric bg-accent-electric/10 px-2.5 py-1 rounded-full border border-accent-electric/25">
+                REAL-TIME
+              </span>
             </div>
-
-            <div className="flex-1 w-full min-h-[300px]">
+            <div className="h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="sentimentGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#00E5FF" stopOpacity={0.35} />
-                      <stop offset="95%" stopColor="#00E5FF" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="volumeGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#22C55E" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="#22C55E" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#00e5ff" stopOpacity={0.4} />
+                      <stop offset="95%" stopColor="#00e5ff" stopOpacity={0.0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#30363D" strokeOpacity={0.5} />
-                  <XAxis dataKey="time" stroke="#849396" tick={{ fill: '#bac9cc', fontSize: 11, fontFamily: 'Space Grotesk' }} />
-                  <YAxis stroke="#849396" tick={{ fill: '#bac9cc', fontSize: 11, fontFamily: 'Space Grotesk' }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                  <XAxis dataKey="time" stroke="#64748b" tick={{ fill: '#64748b', fontSize: 11 }} />
+                  <YAxis domain={[0, 100]} stroke="#64748b" tick={{ fill: '#64748b', fontSize: 11 }} />
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#161B22', border: '1px solid #30363D', borderRadius: '8px', fontFamily: 'Work Sans' }}
-                    labelStyle={{ color: '#00E5FF', fontWeight: 700 }}
-                    itemStyle={{ color: '#dce4e5' }}
+                    contentStyle={{
+                      backgroundColor: 'rgba(11, 15, 25, 0.95)',
+                      backdropFilter: 'blur(12px)',
+                      border: '1px solid rgba(0, 229, 255, 0.3)',
+                      borderRadius: '12px',
+                      color: '#f8fafc',
+                      fontSize: '12px',
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.6)'
+                    }}
                   />
-                  <Area type="monotone" dataKey="sentiment" stroke="#00E5FF" strokeWidth={2} fill="url(#sentimentGrad)" name="Sentiment Velocity" />
-                  <Area type="monotone" dataKey="volume" stroke="#22C55E" strokeWidth={1.5} fill="url(#volumeGrad)" name="Ingestion Vol" />
+                  <Area type="monotone" dataKey="sentiment" stroke="#00e5ff" strokeWidth={2.5} fillOpacity={1} fill="url(#sentimentGrad)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
 
-          {/* Sector Volatility Heatmap */}
-          <div className="bg-surface border border-border-subtle p-(--spacing-card-padding) rounded-xl">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="font-ticker text-[14px] font-bold uppercase text-on-surface">Sector Volatility Heatmap</h3>
-              <span className="text-xs text-on-surface-variant font-mono">Live Weighted NLP</span>
+          {/* Sector Heatmap */}
+          <div className="glass-panel specular-border p-(--spacing-card-padding) rounded-2xl flex flex-col">
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-accent-electric text-[18px]">grid_view</span>
+                <h3 className="font-ticker text-[15px] font-bold uppercase text-on-surface">Sector Heatmap</h3>
+              </div>
+              <span className="text-[11px] font-mono text-on-surface-variant">Live Bias</span>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 gap-2.5 flex-1">
               {sectors.map((s) => (
                 <div
                   key={s.name}
-                  className="border p-3 rounded-lg flex flex-col justify-between h-20 hover:scale-[1.02] transition-transform cursor-pointer"
                   style={sectorStyle(s)}
+                  className="rounded-xl p-3 border flex flex-col justify-between hover:scale-[1.02] transition-transform duration-200 cursor-default"
                 >
-                  <span className="font-body text-[11px] font-bold tracking-[0.05em] uppercase text-on-surface">{s.name}</span>
-                  <span className={`font-mono text-sm font-bold ${s.color === 'positive' ? 'text-sentiment-positive' : s.color === 'negative' ? 'text-sentiment-negative' : 'text-slate-300'}`}>
+                  <span className="font-body text-xs font-semibold text-white/90">{s.name}</span>
+                  <span className={`font-mono text-sm font-bold mt-2 ${s.color === 'positive' ? 'text-sentiment-positive' : s.color === 'negative' ? 'text-sentiment-negative' : 'text-slate-300'}`}>
                     {s.change}
                   </span>
                 </div>
               ))}
             </div>
           </div>
-
         </div>
+      )}
 
-        {/* Right Column: Watchlist (Feature 5) & Developing Stories (Feature 4) */}
-        <div className="flex flex-col gap-(--spacing-gutter)">
-
-          {/* FEATURE 5: CUSTOM ASSET WATCHLIST */}
-          <div className="bg-surface border border-border-subtle p-(--spacing-card-padding) rounded-xl">
+      {/* FEATURE 4 & WATCHLIST SECTION */}
+      {(activeTab === 'ALL' || activeTab === 'STORIES') && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* FEATURE 5: WATCHLIST MANAGEMENT */}
+          <div className="glass-panel specular-border p-(--spacing-card-padding) rounded-2xl flex flex-col">
             <div className="flex justify-between items-center mb-3">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-accent-electric text-[18px]">bookmark</span>
-                <h3 className="font-ticker text-[14px] font-bold uppercase text-on-surface">Custom Watchlist</h3>
+                <h3 className="font-ticker text-[14px] font-bold uppercase text-on-surface">Target Watchlist</h3>
               </div>
-              <span className="text-[10px] bg-accent-electric/10 text-accent-electric px-2 py-0.5 rounded font-mono">
-                {watchlist.length} PINNED
-              </span>
+              <span className="text-[10px] text-on-surface-variant font-mono">{watchlist.length} TICKERS</span>
             </div>
 
-            {/* Quick add form */}
             <form onSubmit={handleAddToWatchlist} className="flex gap-2 mb-3">
               <input
                 type="text"
                 value={newTicker}
                 onChange={(e) => setNewTicker(e.target.value)}
-                placeholder="Add Ticker (e.g. AAPL, ETH)..."
-                className="flex-1 bg-surface-container-high border border-border-subtle rounded-lg px-3 py-1.5 text-xs text-on-surface focus:outline-none focus:border-accent-electric font-mono"
+                placeholder="ADD TICKER (e.g. AAPL)..."
+                className="flex-1 bg-surface-container-low border border-border-subtle rounded-xl px-3 py-1.5 text-xs font-mono text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-accent-electric transition-colors"
               />
-              <button 
-                type="submit" 
-                className="px-3 py-1.5 bg-accent-electric text-background text-xs font-bold rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
+              <button
+                type="submit"
+                onClick={playClick}
+                className="px-3 py-1.5 bg-accent-electric text-black font-mono font-bold text-xs rounded-xl hover:brightness-110 transition-all cursor-pointer shadow-[0_0_12px_rgba(0,229,255,0.3)]"
               >
-                Pin
+                + ADD
               </button>
             </form>
 
-            <div className="space-y-2">
+            <div className="space-y-2 flex-1 overflow-y-auto max-h-[320px]">
               {watchlist.map((item) => (
-                <div key={item} className="flex items-center justify-between p-2 rounded-lg bg-surface-container-low border border-border-subtle text-xs hover:border-accent-electric/30 transition-colors">
+                <div key={item} className="flex items-center justify-between p-2.5 rounded-xl bg-surface-container-low/70 border border-border-subtle hover:border-accent-electric/40 transition-colors">
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-accent-electric"></span>
-                    <strong className="font-mono text-on-surface">{item}</strong>
+                    <span className="font-mono text-xs font-bold text-on-surface">{item}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-[11px] font-mono text-sentiment-positive font-bold">+1.8%</span>
                     <button 
-                      onClick={() => handleRemoveFromWatchlist(item)}
+                      onClick={() => {
+                        playClick();
+                        handleRemoveFromWatchlist(item);
+                      }}
                       className="text-on-surface-variant hover:text-sentiment-negative text-xs transition-colors cursor-pointer"
                       title="Remove from watchlist"
                     >
-                      <span className="material-symbols-outlined text-[14px]">close</span>
+                      <span className="material-symbols-outlined text-[15px]">close</span>
                     </button>
                   </div>
                 </div>
@@ -390,18 +463,18 @@ export default function Dashboard({ articles = [] }) {
           </div>
 
           {/* FEATURE 4: DEVELOPING STORIES CLUSTERING */}
-          <div className="bg-surface border border-border-subtle p-(--spacing-card-padding) rounded-xl flex-1 flex flex-col">
+          <div className="lg:col-span-2 glass-panel specular-border p-(--spacing-card-padding) rounded-2xl flex flex-col">
             <div className="flex justify-between items-center mb-3">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-secondary text-[18px]">account_tree</span>
                 <h3 className="font-ticker text-[14px] font-bold uppercase text-on-surface">Developing Story Clusters</h3>
               </div>
-              <span className="text-[10px] text-accent-electric font-mono">MULTI-OUTLET</span>
+              <span className="text-[10px] text-accent-electric font-mono font-bold bg-accent-electric/10 px-2 py-0.5 rounded-full border border-accent-electric/25">MULTI-OUTLET VERIFIED</span>
             </div>
 
             <div className="space-y-3 flex-1 overflow-y-auto max-h-[380px]">
               {stories.map((s) => (
-                <div key={s.id} className="p-3 rounded-lg bg-surface-container-low border border-border-subtle hover:border-accent-electric/40 transition-colors">
+                <div key={s.id} className="p-3.5 rounded-xl bg-surface-container-low/80 border border-border-subtle hover:border-accent-electric/40 transition-colors">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-[10px] font-mono font-bold text-accent-electric uppercase">{s.category}</span>
                     <span className="text-[10px] bg-surface-container-high px-2 py-0.5 rounded text-on-surface-variant font-mono">
@@ -411,10 +484,9 @@ export default function Dashboard({ articles = [] }) {
                   <h4 className="text-xs font-semibold text-on-surface leading-tight mb-1.5">{s.headline}</h4>
                   <p className="text-[11px] text-on-surface-variant line-clamp-2 leading-relaxed mb-2">{s.summary}</p>
                   
-                  {/* Timeline bullet preview */}
                   {s.timeline && s.timeline[0] && (
                     <div className="flex items-center gap-1.5 text-[10px] text-on-surface-variant/80 border-t border-border-subtle pt-1.5 font-mono">
-                      <span className="text-accent-electric">{s.timeline[0].time}</span>
+                      <span className="text-accent-electric font-bold">{s.timeline[0].time}</span>
                       <span className="truncate">{s.timeline[0].event}</span>
                     </div>
                   )}
@@ -422,28 +494,82 @@ export default function Dashboard({ articles = [] }) {
               ))}
             </div>
           </div>
-
         </div>
-      </div>
+      )}
 
       {/* KILLER FEATURE 4: MARKET MANIPULATION & WHALE TRAP RADAR */}
-      <ManipulationRadar />
+      {(activeTab === 'ALL' || activeTab === 'RISK') && (
+        <ManipulationRadar />
+      )}
 
     </div>
   );
 }
 
-function KPICard({ label, value, icon, iconColor, trend, trendColor, trendIcon, valueColor = 'text-on-surface' }) {
+function KPICard({
+  label,
+  value,
+  icon,
+  iconColor,
+  trend,
+  trendColor,
+  trendIcon,
+  valueColor = 'text-on-surface',
+  sparkline = [],
+  sparkColor = '#00e5ff',
+  spotlightColor = 'rgba(0, 242, 254, 0.2)',
+  borderGlowColor = 'rgba(0, 242, 254, 0.5)'
+}) {
+  // Generate simple SVG path for sparkline
+  const sparkPoints = useMemo(() => {
+    if (!sparkline || sparkline.length < 2) return '';
+    const min = Math.min(...sparkline);
+    const max = Math.max(...sparkline);
+    const range = max - min || 1;
+    const width = 80;
+    const height = 26;
+    return sparkline
+      .map((val, idx) => {
+        const x = (idx / (sparkline.length - 1)) * width;
+        const y = height - ((val - min) / range) * (height - 6) - 3;
+        return `${idx === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
+      })
+      .join(' ');
+  }, [sparkline]);
+
   return (
-    <div className="bg-surface border border-border-subtle p-(--spacing-card-padding) rounded-xl flex flex-col gap-2 hover:border-accent-electric/30 transition-colors">
-      <div className="flex justify-between items-center text-on-surface-variant font-body text-[12px] font-semibold tracking-[0.05em] uppercase">
-        <span>{label}</span>
-        <span className={`material-symbols-outlined ${iconColor} text-[18px]`}>{icon}</span>
+    <TiltCard
+      spotlightColor={spotlightColor}
+      borderGlowColor={borderGlowColor}
+      tiltIntensity={10}
+      className="p-4 flex flex-col justify-between h-36 cursor-default group"
+    >
+      <div className="flex justify-between items-center text-on-surface-variant font-body text-[11px] font-semibold tracking-[0.05em] uppercase z-10">
+        <span className="truncate">{label}</span>
+        <span className={`material-symbols-outlined ${iconColor} text-[22px] group-hover:scale-125 group-hover:rotate-6 transition-all duration-300`}>{icon}</span>
       </div>
-      <div className={`font-headline text-[30px] font-semibold ${valueColor}`}>{value}</div>
-      <div className={`text-xs ${trendColor} flex items-center gap-1`}>
-        <span className="material-symbols-outlined text-[14px]">{trendIcon}</span> {trend}
+
+      <div className="flex items-end justify-between z-10">
+        <div className={`font-headline text-[28px] font-bold ${valueColor} tracking-tight drop-shadow-sm`}>{value}</div>
+        
+        {sparkPoints && (
+          <svg className="w-20 h-7 overflow-visible opacity-75 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300" viewBox="0 0 80 26">
+            <path
+              d={sparkPoints}
+              fill="none"
+              stroke={sparkColor}
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        )}
       </div>
-    </div>
+
+      <div className={`text-xs ${trendColor} flex items-center gap-1.5 z-10 font-mono font-semibold`}>
+        <span className="material-symbols-outlined text-[15px]">{trendIcon}</span>
+        <span className="truncate">{trend}</span>
+      </div>
+    </TiltCard>
   );
 }

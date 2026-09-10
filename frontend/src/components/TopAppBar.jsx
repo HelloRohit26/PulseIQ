@@ -3,11 +3,13 @@ import { useEffect, useState, useRef } from 'react';
 import { isBackendOnline, fetchExecutiveBriefing, subscribeTelemetry } from '../services/api';
 import { useTheme } from '../ThemeContext';
 import TelegramAlertsModal from './TelegramAlertsModal';
+import { playClick, isSoundEnabled, setSoundEnabled } from '../utils/soundEffects';
 
-export default function TopAppBar({ autoRefresh, setAutoRefresh, lastUpdated }) {
+export default function TopAppBar({ autoRefresh, setAutoRefresh, lastUpdated, onOpenCommandPalette }) {
   const location = useLocation();
   const [online, setOnline] = useState(null);
   const [user, setUser] = useState(null);
+  const [soundOn, setSoundOn] = useState(isSoundEnabled());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [dndMode, setDndMode] = useState(false);
@@ -208,13 +210,11 @@ export default function TopAppBar({ autoRefresh, setAutoRefresh, lastUpdated }) 
 
             {/* Brand Logo */}
             <Link to="/" className="flex items-center gap-2.5 group shrink-0">
-              <span className="material-symbols-outlined text-accent-electric text-[26px] md:text-[28px] group-hover:rotate-12 transition-transform duration-300" style={{ fontVariationSettings: "'FILL' 1" }}>
+              <span className="material-symbols-outlined text-accent-electric text-[26px] md:text-[28px] group-hover:rotate-12 transition-transform duration-300 drop-shadow-[0_0_10px_rgba(0,242,254,0.7)]" style={{ fontVariationSettings: "'FILL' 1" }}>
                 hub
               </span>
-              <span className={`font-headline text-xl md:text-2xl font-black tracking-tight ${
-                isDark ? 'text-white' : 'text-slate-900'
-              }`}>
-                Pulse<span className="text-accent-electric">IQ</span>
+              <span className="font-headline text-xl md:text-2xl font-black tracking-tight text-gradient-aurora">
+                PulseIQ
               </span>
             </Link>
 
@@ -287,9 +287,21 @@ export default function TopAppBar({ autoRefresh, setAutoRefresh, lastUpdated }) 
           {/* Right Block: Live Synced Badges & Quick Action Buttons */}
           <div className="flex items-center gap-2 md:gap-3 shrink-0">
 
+            {/* Quick Command Center Trigger (Ctrl+K) */}
+            <button
+              onClick={() => { playClick(); onOpenCommandPalette && onOpenCommandPalette(); }}
+              className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-xl bg-surface-container/70 hover:bg-surface-container border border-border-subtle hover:border-accent-electric/40 text-xs font-mono text-outline hover:text-on-surface transition-all duration-200 cursor-pointer shadow-sm group shrink-0"
+              title="Open Command Center (Ctrl+K)"
+              id="header-command-palette-btn"
+            >
+              <span className="material-symbols-outlined text-[15px] text-accent-electric group-hover:scale-110 transition-transform">search</span>
+              <span className="hidden xl:inline text-on-surface-variant font-medium">Search</span>
+              <kbd className="px-1.5 py-0.5 rounded bg-surface border border-border-subtle text-[10px] text-outline font-bold">Ctrl K</kbd>
+            </button>
+
             {/* FEATURE 6: Executive AI Audio Briefing Button */}
             <button
-              onClick={() => setAudioModalOpen(true)}
+              onClick={() => { playClick(); setAudioModalOpen(true); }}
               title="Listen to Executive Morning Audio Market Brief"
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-accent-electric/40 text-accent-electric bg-accent-electric/10 hover:bg-accent-electric/20 text-xs font-mono font-bold transition-all duration-300 cursor-pointer shadow-[0_0_12px_rgba(0,229,255,0.15)] whitespace-nowrap shrink-0"
             >
@@ -308,7 +320,7 @@ export default function TopAppBar({ autoRefresh, setAutoRefresh, lastUpdated }) 
 
             {/* KILLER FEATURE 5: Telegram Alpha Alerts Bot Button */}
             <button
-              onClick={() => setTelegramModalOpen(true)}
+              onClick={() => { playClick(); setTelegramModalOpen(true); }}
               title="Configure Instant Telegram Alpha Alerts Bot"
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-sky-400/40 text-sky-400 bg-sky-500/10 hover:bg-sky-500/20 text-xs font-mono font-bold transition-all duration-300 cursor-pointer shadow-[0_0_12px_rgba(56,189,248,0.15)] whitespace-nowrap shrink-0"
               id="telegram-bot-header-btn"
@@ -319,10 +331,31 @@ export default function TopAppBar({ autoRefresh, setAutoRefresh, lastUpdated }) 
               <span className="hidden xl:inline">TELEGRAM BOT</span>
             </button>
 
+            {/* Cyber Sound FX Toggle Button */}
+            <button
+              onClick={() => {
+                const next = !soundOn;
+                setSoundOn(next);
+                setSoundEnabled(next);
+                if (next) playClick();
+              }}
+              title={soundOn ? 'Cyber Sound FX Active (Click to mute)' : 'Sound Muted (Click to enable)'}
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer shrink-0 ${
+                soundOn 
+                  ? 'text-accent-electric bg-accent-electric/15 hover:bg-accent-electric/25 border border-accent-electric/30' 
+                  : `${isDark ? 'text-slate-500 hover:bg-white/5 border border-transparent' : 'text-slate-400 hover:bg-slate-100 border border-transparent'}`
+              }`}
+              id="sound-toggle-header-btn"
+            >
+              <span className="material-symbols-outlined text-[17px]">
+                {soundOn ? 'volume_up' : 'volume_off'}
+              </span>
+            </button>
+
             {/* Auto-Refresh Toggle Pill */}
             {setAutoRefresh && (
               <button
-                onClick={() => setAutoRefresh(!autoRefresh)}
+                onClick={() => { playClick(); setAutoRefresh(!autoRefresh); }}
                 title={autoRefresh ? 'Live Telemetry Sync Active' : 'Telemetry Paused'}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-mono font-bold transition-all duration-300 ${
                   autoRefresh
@@ -356,9 +389,9 @@ export default function TopAppBar({ autoRefresh, setAutoRefresh, lastUpdated }) 
 
             {/* Sleek Theme Toggle Switch Button */}
             <button
-              onClick={toggleTheme}
+              onClick={() => { playClick(); toggleTheme(); }}
               title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer shrink-0 ${
                 isDark ? 'text-amber-400 hover:bg-white/5' : 'text-slate-600 hover:bg-slate-100'
               }`}
             >

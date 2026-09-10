@@ -16,6 +16,8 @@ import Newspaper from './pages/Newspaper';
 import ThreatWeb from './pages/ThreatWeb';
 import TradingTerminal from './pages/TradingTerminal';
 import PortfolioWarRoom from './pages/PortfolioWarRoom';
+import QuantumBackground from './components/QuantumBackground';
+import CommandPalette from './components/CommandPalette';
 
 const REFRESH_INTERVAL = 30000; // 30 seconds
 
@@ -34,6 +36,19 @@ function AppLayout() {
   }, []);
 
   const [isAuthenticated] = useState(!!localStorage.getItem('pulseiq_token'));
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+
+  // Global Ctrl+K / Cmd+K listener
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setCommandPaletteOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Initial load
   useEffect(() => {
@@ -59,10 +74,12 @@ function AppLayout() {
 
   if (isLanding) {
     return (
-      <div className="min-h-screen flex flex-col bg-background text-on-surface">
-        <TopAppBar autoRefresh={autoRefresh} setAutoRefresh={setAutoRefresh} lastUpdated={lastUpdated} />
+      <div className="min-h-screen flex flex-col bg-background text-on-surface relative">
+        <QuantumBackground />
+        <TopAppBar autoRefresh={autoRefresh} setAutoRefresh={setAutoRefresh} lastUpdated={lastUpdated} onOpenCommandPalette={() => setCommandPaletteOpen(true)} />
         <HeroLanding />
         <Footer />
+        <CommandPalette isOpen={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
       </div>
     );
   }
@@ -76,10 +93,11 @@ function AppLayout() {
   const isChat = location.pathname === '/chat';
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-on-surface">
-      <TopAppBar autoRefresh={autoRefresh} setAutoRefresh={setAutoRefresh} lastUpdated={lastUpdated} />
+    <div className="min-h-screen flex flex-col bg-background text-on-surface relative">
+      <QuantumBackground />
+      <TopAppBar autoRefresh={autoRefresh} setAutoRefresh={setAutoRefresh} lastUpdated={lastUpdated} onOpenCommandPalette={() => setCommandPaletteOpen(true)} />
       {!isChat && <LiveTicker articles={articles} />}
-      <div className={`flex flex-1 ${isChat ? 'pt-[73px]' : 'pt-[113px]'}`}>
+      <div className={`flex flex-1 ${isChat ? 'pt-[73px]' : 'pt-[113px]'} relative z-10`}>
         <SideNav />
         <main className="flex-1 ml-0 md:ml-64 overflow-y-auto">
           <Routes>
@@ -97,6 +115,7 @@ function AppLayout() {
         </main>
       </div>
       {!isChat && <Footer />}
+      <CommandPalette isOpen={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
     </div>
   );
 }
