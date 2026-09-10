@@ -52,14 +52,14 @@ direct_gemini_model = None
 rag_chain = None
 vector_store = None
 
-# 1. Direct Gemini 2.5 Flash Engine (Ultra-fast, zero-dependency, works directly)
+# 1. Direct Gemini 3.5 Flash Engine (Ultra-fast, zero-dependency, works directly)
 try:
     import google.generativeai as genai
     api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
     if api_key:
         genai.configure(api_key=api_key)
-        direct_gemini_model = genai.GenerativeModel("gemini-2.5-flash")
-        print("[AI] Direct Google Gemini 2.5 Flash initialized and ready!")
+        direct_gemini_model = genai.GenerativeModel("gemini-3.5-flash")
+        print("[AI] Direct Google Gemini 3.5 Flash initialized and ready!")
 except Exception as e:
     print("[AI] Direct Gemini setup warning:", e)
 
@@ -83,7 +83,7 @@ try:
         embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
         chroma_client = chromadb.PersistentClient(path="./chroma_data")
         vector_store = Chroma(client=chroma_client, collection_name="pulseiq_news", embedding_function=embeddings)
-        llm_model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.3, google_api_key=api_key)
+        llm_model = ChatGoogleGenerativeAI(model="gemini-3.5-flash", temperature=0.3, google_api_key=api_key)
 
         current_utc = datetime.now(timezone.utc).strftime("%A, %B %d, %Y at %H:%M UTC")
         system_prompt = (
@@ -160,7 +160,7 @@ def read_root():
         "message": "Welcome to PulseIQ Financial Intelligence Terminal API",
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "status": "ONLINE",
-        "ai_engine": "Gemini 2.5 Flash Direct" if direct_gemini_model else "Standard"
+        "ai_engine": "Gemini 3.5 Flash Direct" if direct_gemini_model else "Standard"
     }
 
 @app.get("/api/health")

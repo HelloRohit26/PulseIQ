@@ -22,7 +22,7 @@ export default function CommandPalette({ isOpen, onClose, onOpenAudioBriefing, o
     { id: 'nav-dash', group: '🚀 Terminal Command', name: 'Dashboard Overview', desc: 'Main Institutional Command Center & KPIs', action: () => navigate('/dashboard'), icon: 'grid_view' },
     { id: 'nav-term', group: '🚀 Terminal Command', name: 'TradingView Terminal & Playbook', desc: 'Interactive Candlestick & Trade Signals', action: () => navigate('/terminal'), icon: 'candlestick_chart' },
     { id: 'nav-port', group: '🚀 Terminal Command', name: 'Portfolio War Room', desc: 'Stress-test holdings & personalized shock alerts', action: () => navigate('/portfolio'), icon: 'shield' },
-    { id: 'nav-chat', group: '🚀 Terminal Command', name: 'Deep Pulse AI Intel Chat', desc: 'Direct Gemini 2.5 Flash financial intelligence', action: () => navigate('/chat'), icon: 'neurology' },
+    { id: 'nav-chat', group: '🚀 Terminal Command', name: 'Deep Pulse AI Intel Chat', desc: 'Direct Gemini 3.5 Flash financial intelligence', action: () => navigate('/chat'), icon: 'neurology' },
     { id: 'nav-news', group: '🚀 Terminal Command', name: 'The Digital Chronicle', desc: 'Synthesized daily financial intelligence print', action: () => navigate('/newspaper'), icon: 'menu_book' },
     { id: 'nav-threat', group: '🚀 Terminal Command', name: 'Entity Threat Web', desc: 'Multi-node geopolitical risk correlation', action: () => navigate('/threat-web'), icon: 'hub' },
 
